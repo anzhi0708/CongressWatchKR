@@ -1,0 +1,80 @@
+Screen {
+	background: #DADAD3;
+	align: center middle;
+	scrollbar-background: #002D56;
+	scrollbar-background-active: #002D56;
+	scrollbar-background-hover: #8D7150;
+	scrollbar-color-active: #7A99AC;
+}
+
+Label {
+	text-align: center;
+	width: auto;
+	height: auto;
+}
+
+Horizontal {
+	align: center middle;
+	width: auto;
+	height: auto;
+}
+
+Vertical {
+	align: center middle;
+	width: auto;
+	height: auto;
+}
+
+Footer {
+	background: #9D9FA2;
+	color: white;
+}
+
+DataTable {
+	background: white;
+	height: auto;
+	width: auto;
+}
+
+.speech {
+	color: black;
+}
+
+#speaker_name_and_title {
+	width: auto;
+	height: auto;
+	text-align: center;
+	background: #002D56;
+	border: round white;
+}
+
+#mp_table_horizontal {
+	align: center middle;
+	height: auto;
+	width: auto;
+}
+
+#mp_table {
+	border: round #002D56;
+	text-align: center;
+}
+
+.datatable--cursor {
+	background: #8D7150;
+}
+
+.datatable--header {
+	background: white;
+}
+
+.datatable--highlight {
+	background: #7A99AC;
+}
+
+.datatable--even-row {
+	background: #DADAD3;
+}
+
+#speaker_name_as_key {
+	border: round solid #002D56;
+}
