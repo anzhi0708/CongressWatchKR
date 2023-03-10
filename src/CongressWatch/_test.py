@@ -1,9 +1,13 @@
+#!/usr/bin/env python3
+
+
 import os
 import sys
 import time
 import signal
 import termios
 import logging
+import subprocess
 import multiprocessing
 from multiprocessing import Process
 
@@ -27,7 +31,7 @@ def kill_all_processes():
 
 
 def process_pdf(path_to_file: str):
-    os.system(f"./app.py {path_to_file} 1> /dev/null")
+    subprocess.run(["./app.py", f"{path_to_file}", "1>", "/dev/null"])
 
 
 if len(sys.argv) < 2:
@@ -53,16 +57,16 @@ if __name__ == "__main__":
 
         for a_process in once:
             a_process.start()
-            print(a_process)
+            print(a_process, file=sys.stderr)  # Print to stderr cuz `1> /dev/null`
 
-        print()
+        print("", file=sys.stderr)
 
         time.sleep(3)
         for a_process in once:
             a_process.terminate()
             a_process.join()
-            print(a_process)
+            print(a_process, file=sys.stderr)
 
-        print()
+        print("", file=sys.stderr)
         once.clear()
 

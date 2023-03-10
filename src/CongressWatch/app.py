@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import logging
 from textual.screen import Screen
 from textual.app import App, ComposeResult
@@ -110,7 +111,8 @@ class TableScreen(Screen):
                         e: Exception = RuntimeError(err_msg)
                         logging.warning(err_msg)
                         print(
-                            f"\n{__file__}:\nError has been recorded. Check 'log/' for more."
+                            f"\n{__file__}:\nError has been recorded. Check 'log/' for more.",
+                            file=sys.stderr
                         )
                         raise e
             self.table.add_row(str(index + 1), name[1:], f"[b]{_name}[/b]", _job)
@@ -149,7 +151,6 @@ class CongressWatch(App[None]):
 
     def on_mount(self):
         from ajpdf import Main as ajpdf_main
-        import sys
 
         self.doc_obj = ajpdf_main().parse(sys.argv[1])
         self.title: str = self.doc_obj.real_title
