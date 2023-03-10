@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import logging
 from textual.screen import Screen
 from textual.app import App, ComposeResult
 from textual.widgets import DataTable, Label, Footer, Header
@@ -67,23 +68,20 @@ class TableScreen(Screen):
         self.table.add_column("[b]Name[/b]", width=17)
         self.table.add_column("Job Title")
 
-        # @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @
-        #  self.doc_obj.result:           @
-        #    type: dict[str, list[str]]   @
-        # @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @
-
+        # `self.doc_obj.result` - dict[str, list[str]]
         for index, name in enumerate(self.doc_obj.result):
             job_title_and_name: list[str] = name.split(" ")
 
             # Removing "◯"
-            job_title_and_name = list(map(
-                    lambda e: e.replace("◯", ""),
-                    job_title_and_name
-            ))
+            job_title_and_name = list(
+                map(lambda e: e.replace("◯", ""), job_title_and_name)
+            )
 
             # @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @
+            """
             with open("./LOG.log", "a") as f:
                 f.write(str(job_title_and_name))
+            """
             # @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @ @
 
             for title in JOB_TITLES:
@@ -106,7 +104,15 @@ class TableScreen(Screen):
                             _name = job_title_and_name[0]
                             break
                     else:
-                        raise RuntimeError(f"No valid job title found ({job_title_and_name = })")
+                        err_msg: str = (
+                            f"No valid job title found ({job_title_and_name = })"
+                        )
+                        e: Exception = RuntimeError(err_msg)
+                        logging.warning(err_msg)
+                        print(
+                            f"\n{__file__}:\nError has been recorded. Check 'log/' for more."
+                        )
+                        raise e
             self.table.add_row(str(index + 1), name[1:], f"[b]{_name}[/b]", _job)
 
         yield Vertical(
@@ -135,9 +141,11 @@ class CongressWatch(App[None]):
 
     def __init__(self) -> None:
         super().__init__()
+        """
         _COLS, _ROWS = get_terminal_size()
         self.cols: int = _COLS
         self.rows: int = _ROWS
+        """
 
     def on_mount(self):
         from ajpdf import Main as ajpdf_main
@@ -149,5 +157,13 @@ class CongressWatch(App[None]):
 
 
 if __name__ == "__main__":
+    from datetime import datetime
+
+    logging.basicConfig(
+        level=logging.WARNING,
+        datefmt="%Y-%m-%d %H.%M.%S",
+        format="%(asctime)s %(levelname)s %(message)s",
+        filename=f'./log/{datetime.now().strftime("%Y.%m.%d")}',
+    )
     app = CongressWatch()
     app.run()
