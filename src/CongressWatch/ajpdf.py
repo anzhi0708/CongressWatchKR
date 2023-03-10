@@ -63,7 +63,6 @@ class PDFText:
         enable_logging: bool = False,
         save: bool = False,
     ):
-
         # Real PDF file / conf title cause metadata is fucking useless
         self.real_title: str = ""
 
@@ -108,7 +107,7 @@ class PDFText:
         ) as target:
             pickle.dump(self.result, target)
 
-    def update_status(self, new_status: Type[_Status]):
+    def update_status(self, new_status):
         self.status = new_status if self.status != new_status else self.status
 
     @staticmethod
@@ -119,7 +118,7 @@ class PDFText:
         a Python dictionary (something like `{NAME: SPEECH_AS_TEXT}`).
         """
         fitz_doc = fitz.open(pdf_file_path)  # type: fitz.Document
-        pdf_text = PDFText(fitz_doc)
+        pdf_text = PDFText(fitz_doc, file_name=pdf_file_path)
         pdf_text.get_stats()
         return pdf_text.result
 
@@ -147,7 +146,6 @@ class PDFText:
             # It could be a non-politician speaker,
             # or some skippable information.
             if "◯" in line:
-
                 # Show unprintable characters for debugging
                 console.warn(
                     '"' + line.replace("\n", "<NL>").replace(" ", "<SPACE>") + '"'
@@ -275,7 +273,6 @@ class PDFText:
         return False
 
     def is_line_end_of_conf(self, line: str) -> bool:
-
         console = self.console
 
         dismiss_act_pattern = r"\([0-9]{1,2}시[0-9]{1,2}분 산회\)"
@@ -324,15 +321,14 @@ class PDFText:
         previous_line: str = ""
 
         for line in self.lines:
-
             line = normalize("NFKC", line)
 
             if self.is_line_end_of_conf(line):
                 current_speaker = ""
                 console.warn("Reached the end of file", prefix="EOF")
                 console.log(
-                        f"\n{'#' * 31}\nTotal: {len(set(self.speakers))} speakers\n{'#' * 31}",
-                        prefix=""
+                    f"\n{'#' * 31}\nTotal: {len(set(self.speakers))} speakers\n{'#' * 31}",
+                    prefix="",
                 )
                 # Stop handling text
                 break
@@ -390,7 +386,6 @@ class PDFText:
             # 1) Line is a normal line...
             # 2) Found a new speaker!
             else:
-
                 if new_speaker:
                     new_speaker = normalize("NFKC", new_speaker)
                     self.speakers.append(new_speaker)
@@ -425,7 +420,6 @@ class PDFText:
 
                 # A normal line
                 else:
-
                     if current_speaker:
                         self.result[current_speaker].append(line)
                         continue
@@ -456,7 +450,6 @@ pdf_to_dict = PDFText.get_stats_from_file
 
 
 class Main:
-
     def __init__(self):
         print(fitz.__doc__)
         print()
@@ -471,8 +464,7 @@ class Main:
             print("File not found!")
             raise e
         ajpdf_doc = PDFText(
-            self.doc_obj,
-            enable_logging=True, file_name=self.file, save=save
+            self.doc_obj, enable_logging=True, file_name=self.file, save=save
         )
         ajpdf_doc.get_stats()
 
@@ -482,6 +474,7 @@ class Main:
         """Parse / view the whole directory"""
         self.dir = dir
         import os
+
         for file in os.listdir(self.dir):
             os.system(f"python ./ajpdf.py {self.dir}/{file}")
             # input("Continue? ")
@@ -489,6 +482,7 @@ class Main:
 
 if __name__ == "__main__":
     import sys
+
     _FILENAME = ""
     try:
         _FILENAME = sys.argv[1]
