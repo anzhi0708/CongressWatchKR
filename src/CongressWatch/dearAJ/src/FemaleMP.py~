@@ -1,0 +1,84 @@
+from dataclasses import dataclass
+
+
+DATABASE = "./ALL_FEMALE_MP.json"
+
+
+@dataclass
+class FemaleMP:
+    emp_no: str
+    mona_cd: str
+    hg_nm: str
+    hj_nm: str
+    eng_nm: str
+    age: int
+    sex_gbn_nm: str
+    dept_img_url: str
+    poly_cd: str
+    poly_nm: str
+    orig_nm: str
+    ele_gbn_nm: str
+    reele_gbn_nm: str
+    unit_cd: str
+    units: str
+    cmit_nm: str
+    cmits: str
+    tel_no: str
+    e_mail: str
+    homepage: str
+    staff: str
+    secretary: str
+    secretary2: str
+    bth_date: str
+    unit_nm: str
+    link_url: str
+    open_na_id: str
+
+
+def get_all_female_mp(FEMALE_MP_JSON: str = DATABASE) -> list[FemaleMP]:
+    import json
+
+    FEMALE_MP_LIST: list[dict] = []
+
+    with open(FEMALE_MP_JSON, "r") as json_data:
+        FEMALE_MP_LIST = json.loads(json_data.read())["data"]
+
+    result = list(
+        map(
+            lambda data: FemaleMP(
+                data["empNo"],
+                data["monaCd"],
+                data["hgNm"],
+                data["hjNm"],
+                data["engNm"],
+                data["age"],
+                data["sexGbnNm"],
+                data["deptImgUrl"],
+                data["polyCd"],
+                data["polyNm"],
+                data["origNm"],
+                data["eleGbnNm"],
+                data["reeleGbnNm"],
+                data["unitCd"],
+                data["units"],
+                data["cmitNm"],
+                data["cmits"],
+                data["telNo"],
+                data["eMail"],
+                data["homepage"],
+                data["staff"],
+                data["secretary"],
+                data["secretary2"],
+                data["bthDate"],
+                data["unitNm"],
+                data["linkUrl"],
+                data["openNaId"],
+            ),
+            FEMALE_MP_LIST,
+        )
+    )
+    return result
+
+
+if __name__ == "__main__":
+    print(get_all_female_mp()[0])

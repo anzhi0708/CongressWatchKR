@@ -1,0 +1,69 @@
+#!/Users/aj/.pyenv/shims/python3
+
+
+import requests
+from faker import Faker
+import click
+
+
+@click.command()
+@click.option("--rows", default="6000", type=str, show_default=True)
+@click.option("--page", default="1", type=str, show_default=True)
+@click.option("--sch_sex_gbn", default="", type=str, show_default=True, help="Gender")
+@click.option(
+    "--sch_hg_nm", default="", type=str, show_default=True, help="Name in Hangul"
+)
+@click.option("--sch_unit_cd", default="", type=str, show_default=True)
+@click.option("--status_cd", default="060001", type=str, show_default=True)
+@click.option(
+    "--sch_reele_gbn", default="", type=str, show_default=True, help="Re-election num"
+)
+def get_respond(
+    *,
+    status_cd="060001",
+    gubun_id="",
+    excel_nm="",
+    sch_unit_cd="",
+    sch_hg_nm="",
+    sch_sex_gbn="",
+    sch_reele_gbn="",
+    sch_elect_gbn="",
+    rows="10",
+    page="1",
+):
+
+    ACTION = "https://open.assembly.go.kr/portal/assm/search/searchAssmMemberSch.do"
+    PAYLOAD = {
+        "statusCd": status_cd,  #
+        "gubunId": gubun_id,  #
+        "excelNm": excel_nm,  # "엑셀 다운로드명"
+        "schUnitCd": f"1000{sch_unit_cd}" if sch_unit_cd else "",  # Generation
+        "schHgNm": sch_hg_nm,  # Hangul name
+        "schSexGbn": "2" if sch_sex_gbn == "여" else "1",  # Gender, 1->Male, 2->Female
+        "schReeleGbn": f"10500{sch_reele_gbn}"
+        if sch_reele_gbn
+        else "",  # Re-election count
+        "schElectGbn": sch_elect_gbn,  # How
+        "rows": rows,
+        "page": page,
+    }
+
+    HEADERS = {
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "User-Agent": Faker().user_agent(),
+        "Origin": "https://open.assembly.go.kr",
+        "Host": "open.assembly.go.kr",
+        "Content-Type": "Content-Type: application/x-www-form-urlencoded; charset=UTF-8",
+        "Accept-Language": "zh-CN,zh;q=0.7",
+    }
+
+    full_url = f"{ACTION}?"
+    for key in PAYLOAD.keys():
+        full_url += f"{key}={PAYLOAD[key]}&"
+
+    respond = requests.get(full_url, headers=HEADERS)
+    print(respond.text)
+
+
+if __name__ == "__main__":
+    get_respond()

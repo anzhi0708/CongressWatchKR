@@ -1,0 +1,27 @@
+#!/Users/aj/.pyenv/shims/python3
+
+import click
+from ajconsole import Message
+
+PDF_HANDLER = "./saving_json.py"
+COUNTER = "./ajplot.py"
+PYTHON = "python3"
+console = Message(True)
+
+
+@click.command()
+@click.argument("year", type=int)
+def main(year: int):
+    from os import system
+
+    console.log(f"Saving JSON ({year=})")
+    system(f"{PYTHON} {PDF_HANDLER} {year}")
+    console.log(f"Done saving JSON ({year=})")
+    console.log(f"Counting characters ({year=})")
+    system(f"{PYTHON} {COUNTER} {year}")
+    console.log(f"Done counting characters ({year=})")
+    console.log("\nDone. Bye :-D\n")
+
+
+if __name__ == "__main__":
+    main()

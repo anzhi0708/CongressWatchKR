@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+
+import datetime
+import json
+import os
+from dearaj import *
+from ajconsole import Message
+import sys
+from tqdm import tqdm
+from unicodedata import normalize
+
+
+LOGGING = True
+console = Message(LOGGING)
+
+JSON_PATH = "/Users/aj/Public/py/dearAJ/src/"
+
+GEN_PERIOD_DICT: dict = {
+    21: ("2020-05-30", "2024-05-29"),
+    20: ("2016-05-30", "2020-05-29"),
+    19: ("2012-05-30", "2016-05-29"),
+    18: ("2008-05-30", "2012-05-29"),
+    17: ("2004-05-30", "2008-05-29"),
+    15: ("1996-05-30", "2000-05-29"),
+    14: ("1992-05-30", "1996-05-29"),
+    13: ("1988-05-30", "1992-05-29"),
+    12: ("1985-04-11", "1988-05-29"),
+    11: ("1981-04-11", "1985-04-10"),
+    10: ("1979-03-12", "1980-10-27"),
+    9: ("1973-03-12", "1979-03-11"),
+    8: ("1971-07-01", "1972-10-17"),
+    7: ("1967-07-01", "1971-06-30"),
+    6: ("1963-12-17", "1967-06-30"),
+}
+
+
+def get_stat(year: int, save_data: bool = False):
+    """Get total character count"""
+    stat_data = {}
+
+    if save_data:
+        speech_content = {}
+
+    if year <= 2000:
+        console.error("Invalid argument")
+        os._exit(233)
+
+    # Getting gen
+    gen = []
+    for nb_gen in GEN_PERIOD_DICT:
+        if int(GEN_PERIOD_DICT[nb_gen][0][:4]) == year:
+            gen.append(nb_gen - 1)
+            gen.append(nb_gen)
+            break
+        if (
+            int(GEN_PERIOD_DICT[nb_gen][0][:4])
+            < year
+            < int(GEN_PERIOD_DICT[nb_gen][1][:4])
+        ):
+            gen.append(nb_gen)
+            break
+
+    # Getting female MP names
+    female_names = [
+        normalize("NFKC", mp.name) for g in gen for mp in Assembly(g).females
+    ]
+
+    console.log(f"{gen = }, {len(female_names)} ladies")
+    console.log(str(female_names))
+
+    path = f"{JSON_PATH}{year}_json/"
+    files = os.listdir(path)
+    for file in tqdm(files):
+        with open(f"{path}{file}", "r", encoding="UTF-8") as json_file:
+            # Reading every record
+            json_string = json_file.read().strip()
+            record = json.loads(json_string)
+            for key in record.keys():
+                speaker = normalize("NFKC", key.strip())
+                if (
+                    "㈜" in speaker
+                    or "주식회사" in speaker
+                    or "참고인" in speaker
+                    or "진술인" in speaker
+                    or "증인" in speaker
+                ):
+                    continue
+                if any(map(lambda word: word in female_names, speaker[1:].split(" "))):
+                    if speaker not in stat_data:
+                        stat_data[speaker] = 0
+                        if save_data:
+                            speech_content[speaker] = []
+                    for line in record[key]:
+                        stat_data[speaker] += len(line.strip())
+                        if save_data:
+                            speech_content[speaker].append(line)
+    if save_data:
+        import time
+
+        filename_to_save_to = f"{year}_{time.strftime('%Y-%m-%d-%H%M%S')}.json"
+        with open(filename_to_save_to, "w", encoding="utf8") as output:
+            output.write(json.dumps(speech_content, ensure_ascii=False))
+
+    return stat_data
+
+
+def show(year: int, plot: bool = False, debug="", save_data=False):
+    from pprint import pp
+
+    data = get_stat(year, save_data=save_data)
+    console.log(f"Total speakers: {len(data.keys())}")
+    if debug == "list":
+        pp(sorted(data, key=lambda s: len(s)), indent=4)
+    elif debug == "dict":
+        pp(data, indent=4)
+    else:
+        pass
+    if plot:
+        x = [key[1:] for key in data]
+        y = [data["◯" + key] for key in x]
+        import matplotlib.pyplot as plt
+
+        plt.figure(figsize=(48, 8))
+        plt.rcParams["font.family"] = ["NanumGothic"]
+        plt.title(f"{year} 여성의원 발언 통계")
+        plt.xticks(fontsize=5)
+        plt.xlabel("Names")
+        plt.ylabel("Characters")
+        plt.bar(x, y)
+        if save_data:
+            plt.savefig(f"{year}.png")
+        plt.show()
+
+
+if __name__ == "__main__":
+    YEAR = int(sys.argv[1])
+    show(YEAR, debug="dict", plot=False, save_data=False)

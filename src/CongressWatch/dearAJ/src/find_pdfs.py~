@@ -1,0 +1,121 @@
+"""
+ This script finds conference PDF records that
+has female MP's speaks. Currently we have 2014 to
+2018 PDF records in a USB disk.
+ This script does not require internet connection
+since the data are all stored in local.
+
+- 이 스크립트가 여성 국회의원의 발언이 들어가는
+국회 회의 기록을 찾도록 한다. 찾는 범위는 USB에
+있는 2014 - 2018년간 국회 회의 기록들이다.
+  데이터들 다 다운 되었기 때문에 인터넷 접수가
+불필요하다.
+"""
+
+# Gen 19 김영주 is a duplicated name that both a male & a female MP have this name
+
+from dearaj import *  # 'period'
+import os
+from dataclasses import dataclass
+from tqdm import tqdm
+
+PERIOD_START = "2018-02-01"
+PERIOD_END = "2018-03-01"
+
+PDF_FILES_PATH_2018 = "/Volumes/AJ/yeongnok-pdfs/2018"
+
+
+@dataclass
+class AJResult:
+
+    pdf_file: str
+    lady_name: str
+
+    def __repr__(self):
+        return f"{self.pdf_file} - {self.lady_name}"
+
+    def __eq__(self, o):
+        if o.pdf_file == self.pdf_file and o.lady_name == self.lady_name:
+            return True
+        return False
+
+    def __le__(self, o):
+        import time
+
+        self_time = time.strptime(self.pdf_file[:10], "%Y-%m-%d")
+        o_time = time.strptime(o.pdf_file[:10], "%Y-%m-%d")
+        return self_time < o_time
+
+    def __gt__(self, o):
+        import time
+
+        self_time = time.strptime(self.pdf_file[:10], "%Y-%m-%d")
+        o_time = time.strptime(o.pdf_file[:10], "%Y-%m-%d")
+        return self_time > o_time
+
+
+result_2018: list[AJResult] = []
+
+print(f"{PERIOD_START=}, {PERIOD_END=}")
+
+for conf in tqdm(period(PERIOD_START, PERIOD_END)):  # 2018 -> gen 20
+    is_conf_visited = False
+    if not is_conf_visited:
+        for movie in conf:
+            for speak in movie:
+                for lady in Assembly(20).females:
+                    if speak.has(lady.name):
+                        file_name = f"{conf.date}_{conf.ct1}.{conf.ct2}.{conf.ct3}.{conf.mc}.pdf"
+                        result = AJResult(file_name, lady.name)
+                        if result not in result_2018:
+                            result_2018.append(result)
+                        is_conf_visited = True
+
+print("Sorting... ", end="")
+result_2018.sort()
+print("sorted. Processing...")
+
+_dictioinray = {}
+
+for x in tqdm(result_2018):
+    file_path = f"{PDF_FILES_PATH_2018}/{x.pdf_file}"
+    if x.pdf_file not in _dictioinray:
+        _dictioinray[x.pdf_file] = {}
+        _dictioinray[x.pdf_file]["ladies"] = []
+    _dictioinray[x.pdf_file]["ladies"].append(x.lady_name)
+    _dictioinray[x.pdf_file]["absolute path"] = file_path
+    cmd = f"/usr/local/opt/coreutils/libexec/gnubin/du -b {file_path}"
+    with os.popen(cmd, "r") as output:
+        _dictioinray[x.pdf_file]["file size"] = output.read().split("\t")[0]
+
+import pprint
+import csv
+
+print(f"Total: {len(result_2018)} conferences")
+
+while True:
+    for file_found in _dictioinray:
+        pprint.pp(_dictioinray[file_found])
+        user_input = input(f"Open this PDF? [Y/n] ")
+        if user_input.lower() in ("y", "ye", "yes", ""):
+            open_return_code = os.system(
+                f"open {_dictioinray[file_found]['absolute path']}"
+            )
+            if open_return_code != 0:
+                print(f"Could not open file {_dictioinray[file_found]}")
+            else:
+                for lady in _dictioinray[file_found]["ladies"]:
+                    print(f"Alpha count for {lady}:")
+                    try:
+                        alpha_count = int(input("    "))
+                    except:
+                        print("Error occured, pls try again!")
+                        alpha_count = int(input("    "))
+                    with open("stats.csv", "a+") as stats:
+                        writer = csv.writer(stats)
+                        row = [alpha_count, lady, _dictioinray[file_found]]
+                        writer.writerow(row)
+            continue
+        else:
+            break
+        break
