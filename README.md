@@ -3,7 +3,7 @@
 - TUI Mode
 
 ```bash
-./app.py [PDF_FILE]
+./app.py PDF_FILE
 ```
 
 Example:
@@ -14,7 +14,7 @@ Example:
 
 - CLI Mode
 ```bash
-./ajpdf.py [PDF_FILE]
+./ajpdf.py PDF_FILE
 ```
 
 - With Python
