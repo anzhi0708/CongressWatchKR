@@ -1,4 +1,5 @@
 from dearaj import *
+import warnings
 import sys
 import os
 from tqdm import tqdm
@@ -6,6 +7,13 @@ from collections import defaultdict, namedtuple
 import pickle
 from pprint import pp
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+import matplotlib
+
+
+font_location = "/Library/Fonts/NanumGothic-regular.ttf"
+font_name = fm.FontProperties(fname=font_location).get_name()
+matplotlib.rc("font", family=font_name)
 
 
 def get_confdesc_by_year(year: int):
@@ -46,19 +54,40 @@ def get_speech_percentage_by_year_and_comm_name(year: int, comm_name: str) -> fl
         if desc.comm_name == comm_name:
             char_count_total += desc.n_total_mp_speech_char_count
             female_char_count += desc.n_total_female_mp_speech_char_count
-        if comm_name == '여가위':
-            if desc.comm_name == '여성위':
+        if comm_name in ("여가위", "여성위", "여성가족위원회"):
+            if desc.comm_name in ("여가위", "여성위", "여성가족위원회"):
                 char_count_total += desc.n_total_mp_speech_char_count
                 female_char_count += desc.n_total_female_mp_speech_char_count
+        if comm_name in ("문방위", "문체위", "미방위"):
+            if desc.comm_name in ("문방위", "문체위", "미방위"):
+                char_count_total += desc.n_total_mp_speech_char_count
+                female_char_count += desc.n_total_female_mp_speech_char_count
+        if comm_name in ("행안위", "안전행정위", "행정안전위"):
+            if desc.comm_name in ("행안위", "안전행정위", "행정안전위"):
+                char_count_total += desc.n_total_mp_speech_char_count
+                female_char_count += desc.n_total_female_mp_speech_char_count
+
+        if comm_name in ("산자중기위", "산자위"):
+            if desc.comm_name in ("산자중기위", "산자위"):
+                char_count_total += desc.n_total_mp_speech_char_count
+                female_char_count += desc.n_total_female_mp_speech_char_count
+        if "복지" in comm_name:
+            if "복지" in desc.comm_name:
+                char_count_total += desc.n_total_mp_speech_char_count
+                female_char_count += desc.n_total_female_mp_speech_char_count
+
     if not char_count_total:
-        raise ValueError(f"Error when getting {comm_name}\nAll possible comm names: {all_possible_comm_names}")
+        warnings.warn(
+            f"Error when getting {comm_name}\nAll possible comm names: {all_possible_comm_names}"
+        )
+        char_count_total = -1
     return female_char_count / char_count_total
     pass
 
 
 def _plot_bar_percentage(x_dim, y_dim, title, block=True):
     plt.figure(figsize=(48, 8))
-    plt.rcParams["font.family"] = ["NanumGothic"]
+    # plt.rcParams["font.family"] = ["NanumGothicOTF"]
     plt.title(title)
     plt.xticks(x_dim)
     _bar = plt.bar(x_dim, y_dim)
@@ -90,6 +119,7 @@ def plot_by_comm_name(comm_name: str = "", mode="speech_percentage"):
     _title = f"{comm_name} 회의중 여성의원 발언 비율 변화"
     _plot_bar_percentage(x_dim, y_dim, _title)
 
+
 def get_word_frequency_by_year(year: int):
     # Guard
     to_confirm: list[str] = []
@@ -111,12 +141,15 @@ def get_word_frequency_by_year(year: int):
     else:
         print(f"{year.center(10, '-')}")
 
-
-
     result_male: dict = {}
     result_female: dict = {}
-    for confdesc in tqdm(get_confdesc_by_year(year), desc="Getting conf description", leave=True):
-        freq_male, freq_female = confdesc.conf.get_ordered_word_frequency_of_both_gender()
+    for confdesc in tqdm(
+        get_confdesc_by_year(year), desc="Getting conf description", leave=True
+    ):
+        (
+            freq_male,
+            freq_female,
+        ) = confdesc.conf.get_ordered_word_frequency_of_both_gender()
         for word in freq_male:
             if word in result_male.keys():
                 result_male[word] += freq_male[word]
