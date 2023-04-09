@@ -1,3 +1,7 @@
+# CongressWatch
+
+Wrapper around `PyMuPDF` with extra functionalities for parsing KR National Assemb PDF data.
+
 ## Usage
 
 - TUI Mode
@@ -112,12 +116,7 @@ Speak(real_time=None, play_time='00:04:31', speak_type='기타', no=106741, spea
 
 ```
 
-## Details
+## Note
 
-- `test.sh`: Used to find missing job titles / PDF data misspells.
-- `ajconsole.py`: A simple module which is basically useless and not necessary.
-- `ajpdf.py`: Wrapper around `PyMuPDF` with extra functionalities for parsing KR National Assemb PDF data.
-- `bin/`: I used `Nuitka` to compile Python scripts to native code for speed.
-- `images/`: Some bugs captured during testing, some screenshots.
-- `log/`: Basically for debugging.
-- Other files or directories: Fairly easy to understand by their names / contents.
+This was designed for personal usage; the latest version is currently not available with `pip install`. If you want to use it, consider `git clone` it.
+
