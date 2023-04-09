@@ -1,0 +1,6 @@
+colorama
+textual
+faker
+tqdm
+konlpy
+requests
