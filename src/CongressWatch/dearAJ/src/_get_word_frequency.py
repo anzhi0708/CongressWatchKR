@@ -81,6 +81,7 @@ def plot_by_comm_name(comm_name: str = "", mode="speech_percentage"):
     _title = f"{comm_name} 회의중 여성의원 발언 비율 변화"
     _plot_bar_percentage(x_dim, y_dim, _title)
 
+
 def get_word_frequency_by_year(year: int):
     # Guard
     to_confirm: list[str] = []
@@ -102,12 +103,15 @@ def get_word_frequency_by_year(year: int):
     else:
         print(f"{year.center(10, '-')}")
 
-
-
     result_male: dict = {}
     result_female: dict = {}
-    for confdesc in tqdm(get_confdesc_by_year(year), desc="Getting conf description", leave=True):
-        freq_male, freq_female = confdesc.conf.get_ordered_word_frequency_of_both_gender()
+    for confdesc in tqdm(
+        get_confdesc_by_year(year), desc="Getting conf description", leave=True
+    ):
+        (
+            freq_male,
+            freq_female,
+        ) = confdesc.conf.get_ordered_word_frequency_of_both_gender()
         for word in freq_male:
             if word in result_male.keys():
                 result_male[word] += freq_male[word]
@@ -126,5 +130,6 @@ def get_word_frequency_by_year(year: int):
 if __name__ == "__main__":
     # plot_by_comm_name("국방위")
     from sys import argv
+
     year = int(argv[1])
     get_word_frequency_by_year(year)

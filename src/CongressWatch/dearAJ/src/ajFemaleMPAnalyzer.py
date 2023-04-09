@@ -13,7 +13,6 @@ console = Message(LOGGING)
 
 class StatInfo:
     def __init__(self, file):
-
         self.DATABASE = core.FEMALE_MP_JSON_DATABASE
         self.FEMALE_MP_LIST = core.get_all_female_mp()
         self.FEMALE_MP_HANGUL_NAMES = []

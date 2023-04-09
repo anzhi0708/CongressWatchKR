@@ -5,7 +5,7 @@ MODULE_PATH = pathlib.Path(__file__).parent.absolute()
 
 sys.path.append(str(MODULE_PATH))
 
-from local import *
+from .local import *
 import ajconsole
 from ajcore import (
     GEN_PERIOD_DICT,
@@ -34,6 +34,7 @@ __all__ = [
     "Movie",
     "PDFText",
     "ConfBuilder",
+    "ConfDescription",
     "period",
     "get_gen_by_year",
     "get_year_by_gen",

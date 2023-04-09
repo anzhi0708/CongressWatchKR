@@ -9,6 +9,7 @@ __all__ = [
     "Movie",
     "MPList",
     "MPSpeechRecord",
+    "ConfDescription",
     "ConfBuilder",
     "FemaleMP",
     "Speak",

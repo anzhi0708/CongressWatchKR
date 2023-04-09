@@ -45,6 +45,7 @@ __all__ = [
     "get_mp_speech_record",
     "pdf_to_dict",
     "get_conf_from_keys",
+    "ConfDescription",
 ]
 
 
@@ -881,7 +882,6 @@ class Conferences:
 
 
 class period:
-
     __slots__ = "files", "start", "end", "conferences"
 
     def __init__(self, start: str, end: str):
@@ -913,7 +913,6 @@ class period:
         return len(self.conferences)
 
     def __repr__(self) -> str:
-
         start: str = self.start.strftime("%Y-%m-%d")
         end: str = self.end.strftime("%Y-%m-%d")
         return f"<'period' object, with {len(self.conferences)} conferences from {start} to {end}, at {hex(id(self))}>"

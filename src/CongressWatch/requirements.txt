@@ -3,3 +3,4 @@ textual
 faker
 tqdm
 konlpy
+requests

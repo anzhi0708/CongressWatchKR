@@ -112,7 +112,7 @@ class TableScreen(Screen):
                         logging.warning(err_msg)
                         print(
                             f"\n{__file__}:\nError has been recorded. Check 'log/' for more.",
-                            file=sys.stderr
+                            file=sys.stderr,
                         )
                         raise e
             self.table.add_row(str(index + 1), name[1:], f"[b]{_name}[/b]", _job)

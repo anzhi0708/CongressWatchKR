@@ -47,7 +47,6 @@ class PDFText:
         speaker_info = re.compile(speaker_info_pattern).search(line) or ""
 
         if isinstance(speaker_info, str):  # No match
-
             # LARGE CIRCLE found, but it's not a MP speaker.
             # It could be a non-politician speaker, or some skippable information.
             if "◯" in line:
@@ -163,11 +162,9 @@ class PDFText:
         return False
 
     def get_stats(self):
-
         current_speaker = ""
 
         for line in self.lines:
-
             # Scanning the line
             new_speaker = self.get_speaker_info(line)
 
@@ -204,9 +201,7 @@ class PDFText:
             # 1) Line is a normal line...
             # 2) Found a new speaker!
             else:
-
                 if new_speaker:
-
                     self.speakers.append(new_speaker)
 
                     if new_speaker not in self.result.keys():
@@ -239,7 +234,6 @@ class PDFText:
 
                 # A normal line
                 else:
-
                     if current_speaker:
                         self.result[current_speaker].append(line)
                         continue

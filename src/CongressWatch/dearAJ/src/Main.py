@@ -25,7 +25,6 @@ ANALYZER = "/Users/aj/Public/py/dearAJ/src/ajFemaleMPAnalyzer.py"
 
 
 def analyze(year: int, queue: Queue):
-
     DIRECTORY = f"{year}_json"
     result = defaultdict(
         int
