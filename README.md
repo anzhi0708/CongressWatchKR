@@ -2,8 +2,11 @@
 
 
 This library was designed to complete my graduation thesis, including modules for web scraping, text analysis, and more. Since it was designed for personal use, it has not been published on PyPi.
+
 Specifically, it uses the `PyMuPDF` library to extract text content from PDF files, and then filters the content using **regular expressions**, converting a PDF file into a plain Python dictionary, storing it in the format of **'person name' => 'speech content'** for further analysis.
+
 The design is not complicated and can be easily replicated in other languages.
+
 To perform decade-spanning analyses, I conducted a simple analysis and reverse engineering of the KR Assembly website, implementing a web scraping module for downloading meeting records within a specified range.
 
 ## Usage
