@@ -89,7 +89,7 @@ False
 
 ```
 
-`PDFText` is a wrapper class based on the `PyMuPDF` module. It can parse a 국회호의록 PDF file into a **Python dictionary** in the form of *MP_NAME: LIST_OF_LINES_OF_HIS_OR_HER_SPEECH*. For more information, use the built-in function `help`.
+`PDFText` is a wrapper class based on the `PyMuPDF` module. It can parse a 국회회의록 PDF file into a **Python dictionary** in the form of *MP_NAME: LIST_OF_LINES_OF_HIS_OR_HER_SPEECH*. For more information, use the built-in function `help`.
 
 ```python
 >>> cw.PDFText
