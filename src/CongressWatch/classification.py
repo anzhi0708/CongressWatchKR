@@ -33,7 +33,7 @@ class Word:
                 self.women_related = True
             case "아동":
                 self.child_related = True
-            case "보건" | "코로나" | "코로나19":
+            case "보건" | "코로나" | "코로나19" | "질병" | "병원":
                 self.healthcare = True
             case "가족":
                 self.social_welfare = True
@@ -51,8 +51,8 @@ class Word:
                 self.domestic = True
 
 
-
 if __name__ == "__main__":
     word = Word("경제")
     from pprint import pp
+
     pp(word.__dict__)

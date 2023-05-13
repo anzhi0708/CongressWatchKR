@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from typing import Union, Callable, Optional, NewType, NamedTuple
 from abc import ABC, abstractmethod
-from os import get_terminal_size
 from collections import namedtuple
 import os
 import subprocess
@@ -15,10 +14,9 @@ from dearAJ import *
 from dearAJ import ConfDescription
 import pickle
 from enum import Enum, auto
+from classification import Word
 import fire
 
-
-COLUMNS, ROWS = get_terminal_size()
 
 Index = NewType("Index", int)
 
@@ -284,7 +282,18 @@ def tui_show_pdf(filename: str) -> None:
 
 
 class Main:
-    def wordfreq(
+    __word = Word(" ")
+    __LABELS: list[str] = []
+    for __k in __word.__dict__:
+        __LABELS.append(__k)
+
+    def showlabels(self) -> list[str]:
+        """
+        This command will display the categories to which each word belongs in the word frequency statistics.
+        """
+        return self.__LABELS
+
+    def plotfreq(
         self,
         year: int,
         top: int = 20,
@@ -295,7 +304,7 @@ class Main:
     ):
         """
         This command will plot the word frequency of parliamentary speeches in the specified year.
-        e.g. `wordfreq 2020`
+        e.g. `plotfreq 2020`
         """
         plot_word_freq(year=year, top=top)
 
@@ -313,7 +322,7 @@ class Main:
         pp({"year": year, "top": top, "key": key})
         pp(word_freq_look_up((get_word_freq, {"year": year, "top": top}), key=key))
 
-    def printwordfreqandclassification(self, year: int, top: int) -> None:
+    def withlabels(self, year: int, top: int) -> None:
         """
         This command will display the word frequency along with the corresponding categories for each word.
         """
@@ -322,7 +331,6 @@ class Main:
         )
         freq_male = word_freq[0]
         freq_female = word_freq[1]
-        from classification import Word
 
         for key in freq_male:
             _word = Word(key)
@@ -346,9 +354,9 @@ class Main:
 
 
 if __name__ == "__main__":
-    print("Data Files Found".center(COLUMNS, "="))
+    print("Data files found:")
     pp(DATA_FILES)
-    print("=" * COLUMNS)
+    print()
     print()
     """
     plot_word_freq(year=2006, top=20)

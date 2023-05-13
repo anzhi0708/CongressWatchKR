@@ -127,3 +127,4 @@ Speak(real_time=None, play_time='00:04:31', speak_type='기타', no=106741, spea
 
 This was designed for personal usage; the latest version is currently not available with `pip install`. If you want to use it, consider `git clone` it.
 
+Due to being designed for personal use, this program has only been tested on the author's computer (macOS), and some configuration information, such as the font settings for the graphics module, is hard-coded into the source file. However, it is not difficult to modify — as long as you have a basic understanding of Python, you can modify these configuration settings.
