@@ -4,3 +4,4 @@ faker
 tqdm
 konlpy
 requests
+fire
