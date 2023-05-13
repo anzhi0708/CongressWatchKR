@@ -12,16 +12,26 @@ To perform decade-spanning analyses, I conducted a simple analysis and reverse e
 
 ## Usage
 
+```bash
+cd src/CongressWatch/
+```
+
+- Show all options / commands
+
+```bash
+python3 main.py
+```
+
 - TUI Mode
 
 ```bash
-./app.py <PDF_FILE>
+python3 app.py <PDF_FILE>
 ```
 
 Example:
 
 ```bash
-./app.py pdf_for_testing/sample_2020.pdf
+python3 app.py pdf_for_testing/sample_2020.pdf
 ```
 
 - CLI Mode
