@@ -25,7 +25,7 @@ python3 main.py
 - TUI Mode
 
 ```bash
-python3 app.py <PDF_FILE>
+python3 app.py PDF_FILE
 ```
 
 Example:
@@ -36,7 +36,7 @@ python3 app.py pdf_for_testing/sample_2020.pdf
 
 - CLI Mode
 ```bash
-./ajpdf.py <PDF_FILE>
+./ajpdf.py PDF_FILE
 ```
 
 - With Python
