@@ -1,5 +1,6 @@
 # CongressWatch
 
+![Screenshot](./screenshot.jpg)
 
 This library was designed to complete my graduation thesis, including modules for web scraping, text analysis, and more. Since it was designed for personal use, it has not been published on PyPi.
 
