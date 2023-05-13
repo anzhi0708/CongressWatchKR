@@ -15,6 +15,7 @@ from dearAJ import *
 from dearAJ import ConfDescription
 import pickle
 from enum import Enum, auto
+import fire
 
 
 COLUMNS, ROWS = get_terminal_size()
@@ -282,14 +283,79 @@ def tui_show_pdf(filename: str) -> None:
     print(result.stdout.decode("utf-8"))
 
 
+class Main:
+    def wordfreq(
+        self,
+        year: int,
+        top: int = 20,
+        min_male: int = 0,
+        min_female: int = 0,
+        greater_than: int = 0,
+        title: str = "Word Freq",
+    ):
+        """
+        This command will plot the word frequency of parliamentary speeches in the specified year.
+        e.g. `wordfreq 2020`
+        """
+        plot_word_freq(year=year, top=top)
+
+    def comm(self, name: str):
+        """
+        This command takes in the name of a committee and then plots the historical changes in the proportion of female parliamentarians' speeches in meetings of that committee.
+        e.g. `comm '환노위'`
+        """
+        plot_by_comm_name(name)
+
+    def lookup(self, year: int, top: int, key: str):
+        """
+        This command, after arranging the word frequency and keywords in descending order, informs you of the position of the specified vocabulary in this ranking.
+        """
+        pp({"year": year, "top": top, "key": key})
+        pp(word_freq_look_up((get_word_freq, {"year": year, "top": top}), key=key))
+
+    def printwordfreqandclassification(self, year: int, top: int) -> None:
+        """
+        This command will display the word frequency along with the corresponding categories for each word.
+        """
+        word_freq = get_word_freq(
+            year=year, top=top, min_male=0, min_female=0, greater_than=0
+        )
+        freq_male = word_freq[0]
+        freq_female = word_freq[1]
+        from classification import Word
+
+        for key in freq_male:
+            _word = Word(key)
+            freq_male[key] = {
+                "count": freq_male[key],
+                "classification": [
+                    k for k in _word.__dict__ if _word.__dict__[k] is True
+                ],
+            }
+        pp(freq_male)
+        print()
+        for key in freq_female:
+            _word = Word(key)
+            freq_female[key] = {
+                "count": freq_female[key],
+                "classification": [
+                    k for k in _word.__dict__ if _word.__dict__[k] is True
+                ],
+            }
+        pp(freq_female)
+
+
 if __name__ == "__main__":
     print("Data Files Found".center(COLUMNS, "="))
     pp(DATA_FILES)
     print("=" * COLUMNS)
     print()
-    plot_word_freq(year=2013, top=20)
+    """
+    plot_word_freq(year=2006, top=20)
     # Instead of using something like this to get a word's position:
     # word_freq_look_up(get_word_freq(year=2013, top=20), key="제도")
     # Use this:
     # word_freq_look_up((get_word_freq, {"year": 2013, "top": 20}, key=""제도)
     pp(word_freq_look_up((get_word_freq, {"year": 2013, "top": 20}), key="제도"))
+    """
+    fire.Fire(Main)
