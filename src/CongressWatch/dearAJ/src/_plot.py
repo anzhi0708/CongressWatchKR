@@ -62,6 +62,10 @@ def get_speech_percentage_by_year_and_comm_name(year: int, comm_name: str) -> fl
             if desc.comm_name in ("문방위", "문체위", "미방위"):
                 char_count_total += desc.n_total_mp_speech_char_count
                 female_char_count += desc.n_total_female_mp_speech_char_count
+        if comm_name in ("교육위", "교문위", "교과위", "교육위(17)"):
+            if desc.comm_name in ("교육위", "교문위", "교과위", "교육위(17)"):
+                char_count_total += desc.n_total_mp_speech_char_count
+                female_char_count += desc.n_total_female_mp_speech_char_count
         if comm_name in ("행안위", "안전행정위", "행정안전위"):
             if desc.comm_name in ("행안위", "안전행정위", "행정안전위"):
                 char_count_total += desc.n_total_mp_speech_char_count

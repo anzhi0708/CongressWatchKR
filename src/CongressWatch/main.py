@@ -282,16 +282,37 @@ def tui_show_pdf(filename: str) -> None:
 
 
 class Main:
+    """CLI Utility of CongressWatch.
+    
+    Run `python3 main.py` to see help information.
+
+    Copyright 2023 Anji Wong.
+    """
+
     __word = Word(" ")
     __LABELS: list[str] = []
     for __k in __word.__dict__:
         __LABELS.append(__k)
+    __LOW_POLITICS: list[str] = [
+        "women_related",
+        "child_related",
+        "educational",
+        "environmental",
+        "social_welfare",
+        "healthcare",
+        "media",
+    ]
+    __HIGH_POLITICS: list[str] = [
+        "military",
+        "deplomatic",
+    ]
 
     def showlabels(self) -> list[str]:
         """
         This command will display the categories to which each word belongs in the word frequency statistics.
         """
         return self.__LABELS
+
 
     def plotfreq(
         self,
@@ -315,6 +336,41 @@ class Main:
         """
         plot_by_comm_name(name)
 
+    def printfreq(self, year: int, top: int):
+        """
+        This command will plot the word frequency of parliamentary speeches in the specified year.
+        e.g. `printfreq 2020 20`
+        """
+        print_word_freq(year=year, top=top)
+
+    def savefreq(self, year: int, top: int):
+        """
+        Saves word freq data to .csv file.
+        """
+        import csv
+        print("\rReading wordfreq data...", end="", flush=True)
+        male_freq, female_freq = get_word_freq(year=year, top=top)
+        with open(f"./wordfreq_output_{year}_top{top}.csv", 'w') as output:
+            writer = csv.writer(output)
+            writer.writerow(["Index", "Male", "Female"])
+            row_male: list[str] = []
+            print("\rProcessing male wordfreq...")
+            for key in male_freq:
+                word = key
+                freq = male_freq[key]
+                row_male.append(f"{word} {freq}")
+            row_female: list[str] = []
+            print("Processing female wordfreq...")
+            for key in female_freq:
+                word = key
+                freq = female_freq[key]
+                row_female.append(f"{word} {freq}")
+            print("Saving data...")
+            for i in range(top):
+                writer.writerow([i+1, row_male[i], row_female[i]])
+        print("Done.")
+
+
     def lookup(self, year: int, top: int, key: str):
         """
         This command, after arranging the word frequency and keywords in descending order, informs you of the position of the specified vocabulary in this ranking.
@@ -322,7 +378,108 @@ class Main:
         pp({"year": year, "top": top, "key": key})
         pp(word_freq_look_up((get_word_freq, {"year": year, "top": top}), key=key))
 
-    def withlabels(self, year: int, top: int) -> None:
+    def detail(self, year: int, top: int) -> None:
+        """
+        Print word frequency, corresponding labels, and corresponding percentages. The calculation of percentages depends on the provided 'top' parameter, i.e., the percentage refers to the proportion of the word in the **printed vocabularies**.
+        """
+        male_freq, female_freq = self.__withlabels(year, top)
+        male_word_count: int = 0
+        female_word_count: int = 0
+        male_word_types: dict[str, int] = dict()
+        female_word_types: dict[str, int] = dict()
+
+        for k in male_freq:
+            male_word_count += (this_count := male_freq[k]["count"])
+            labels: list[str | None] = male_freq[k]["classification"]
+            if not labels:
+                if "unknown" not in male_word_types:
+                    male_word_types["unknown"] = this_count
+                else:
+                    male_word_types["unknown"] += this_count
+            else:
+                for label in labels:
+                    if label not in male_word_types:
+                        male_word_types[label] = this_count
+                    else:
+                        male_word_types[label] += this_count
+
+        for k in female_freq:
+            female_word_count += (this_count := female_freq[k]["count"])
+            labels: list[str | None] = female_freq[k]["classification"]
+            if not labels:
+                if "unknown" not in female_word_types:
+                    female_word_types["unknown"] = this_count
+                else:
+                    female_word_types["unknown"] += this_count
+            else:
+                for label in labels:
+                    if label not in female_word_types:
+                        female_word_types[label] = this_count
+                    else:
+                        female_word_types[label] += this_count
+
+        print("Male\n")
+        pp(male_freq)
+        print()
+        print("Female\n")
+        pp(female_freq)
+
+        for k in male_word_types:
+            male_word_types[k] = (
+                male_word_types[k],
+                male_word_types[k] / male_word_count,
+            )
+
+        for k in female_word_types:
+            female_word_types[k] = (
+                female_word_types[k],
+                female_word_types[k] / female_word_count,
+            )
+
+        male_word_types = dict(
+            sorted(male_word_types.items(), key=lambda item: item[1][1], reverse=True)
+        )
+
+        female_word_types = dict(
+            sorted(female_word_types.items(), key=lambda item: item[1][1], reverse=True)
+        )
+        print()
+        print("Male\n")
+        print(male_word_types)
+        print()
+        print("Female\n")
+        print(female_word_types)
+        print()
+
+        high_male = 0
+        low_male = 0
+        high_female = 0
+        low_female = 0
+
+        for T in male_word_types:
+            t = male_word_types[T]
+            percentage = t[1]
+            if T in self.__HIGH_POLITICS:
+                high_male += percentage
+            elif T in self.__LOW_POLITICS:
+                low_male += percentage
+            else:
+                pass
+
+        for T in female_word_types:
+            t = female_word_types[T]
+            percentage = t[1]
+            if T in self.__HIGH_POLITICS:
+                high_female += percentage
+            elif T in self.__LOW_POLITICS:
+                low_female += percentage
+            else:
+                pass
+
+        print(f"Male\nHigh:{high_male}, Low:{low_male}")
+        print(f"Female\nHigh:{high_female}, Low:{low_female}")
+
+    def __withlabels(self, year: int, top: int) -> tuple[dict]:
         """
         This command will display the word frequency along with the corresponding categories for each word.
         """
@@ -340,8 +497,6 @@ class Main:
                     k for k in _word.__dict__ if _word.__dict__[k] is True
                 ],
             }
-        pp(freq_male)
-        print()
         for key in freq_female:
             _word = Word(key)
             freq_female[key] = {
@@ -350,14 +505,11 @@ class Main:
                     k for k in _word.__dict__ if _word.__dict__[k] is True
                 ],
             }
-        pp(freq_female)
+        return (freq_male, freq_female)
 
 
 if __name__ == "__main__":
-    print("Data files found:")
-    pp(DATA_FILES)
-    print()
-    print()
+    print(f"{len(DATA_FILES)} data files found")
     """
     plot_word_freq(year=2006, top=20)
     # Instead of using something like this to get a word's position:

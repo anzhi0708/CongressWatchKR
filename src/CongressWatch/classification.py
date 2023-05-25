@@ -15,7 +15,10 @@ class Word:
         self.domestic = False
 
         match self.word:
-            case "경제" | "기업" | "투자" | "시장" | "수입" | "수출":
+            case "건강":
+                self.social_welfare = True
+                self.healthcare = True
+            case "경제" | "기업" | "투자" | "시장" | "수입" | "수출" | "고용" | "업체":
                 self.economic = True
             case "교육" | "학교":
                 self.educational = True
@@ -33,15 +36,15 @@ class Word:
                 self.women_related = True
             case "아동":
                 self.child_related = True
-            case "보건" | "코로나" | "코로나19" | "질병" | "병원":
+            case "보건" | "코로나" | "코로나19" | "질병" | "병원" | "메르스":
                 self.healthcare = True
-            case "가족":
+            case "가족" | "주민" | "공공":
                 self.social_welfare = True
-            case "법안" | "법률":
+            case "법안" | "법률" | "법적":
                 self.legal = True
             case "보도" | "언론":
                 self.media = True
-            case "행정" | "부처" | "예산" | "지역" | "지방" | "국정" | "출신":
+            case "행정" | "부처" | "예산" | "지역" | "지방" | "국정" | "출신" | "공무원" | "여야":
                 self.domestic = True
             case "개정":
                 self.domestic = True
@@ -49,6 +52,8 @@ class Word:
             case "재정" | "산업":
                 self.economic = True
                 self.domestic = True
+            case "문화":
+                self.educational = True
 
 
 if __name__ == "__main__":
