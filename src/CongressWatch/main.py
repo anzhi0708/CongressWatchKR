@@ -18,6 +18,7 @@ from classification import Word
 import fire
 
 
+PICKLE_BIN_CONF_DESC_BY_NTH: str = "./NthAsmDescription_{NTH}.pickle"
 Index = NewType("Index", int)
 
 
@@ -479,6 +480,28 @@ class Main:
         print(f"Male\nHigh:{high_male}, Low:{low_male}")
         print(f"Female\nHigh:{high_female}, Low:{low_female}")
 
+    def get_confdesc_by_nth(self, nth: int):
+        """
+        Internal Use Only
+        """
+        from dearAJ.src.ajconsole import Message
+        log = Message(enabled=False).log
+        if nth not in (17, 18, 19, 20):
+            raise AttributeError("Invalid arg: NTH")
+        filename: str = PICKLE_BIN_CONF_DESC_BY_NTH.replace("{NTH}", nth.__str__())
+        log(f"Reading '{filename}'")
+        with open(filename, 'rb') as pickle_bin:
+            confdesc_objs = pickle.load(pickle_bin)
+        log("", prefix="")
+        log(f"{type(confdesc_objs) = }")
+        log("", prefix="")
+        log(f"{type(confdesc_objs[0]) = }), {len(confdesc_objs) = }")
+        log("", prefix="")
+        log(f"{confdesc_objs[0] = }")
+        log("", prefix="")
+        log(f"{dir(confdesc_objs[0]) = }")
+
+
     def __withlabels(self, year: int, top: int) -> tuple[dict]:
         """
         This command will display the word frequency along with the corresponding categories for each word.
@@ -509,7 +532,12 @@ class Main:
 
 
 if __name__ == "__main__":
-    print(f"{len(DATA_FILES)} data files found")
+    print(f"{len(DATA_FILES)} data files (by YEAR) found")
+    DATAFILE_BY_NTH_COUNT: int = 0
+    for file in os.listdir():
+        if file.startswith("NthAsmDescription") and file.endswith("pickle"):
+            DATAFILE_BY_NTH_COUNT += 1
+    print(f"{DATAFILE_BY_NTH_COUNT} data files (by NTH) found")
     """
     plot_word_freq(year=2006, top=20)
     # Instead of using something like this to get a word's position:
