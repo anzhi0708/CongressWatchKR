@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""
+the TUI Interface
+"""
+
 import sys
 import logging
 from textual.screen import Screen

@@ -67,7 +67,10 @@ class PDFText:
         self.real_title: str = ""
 
         self.save: bool = save
-        self.file_name: str = file_name.split("/")[-1]
+        # self.file_name: str = file_name.split("/")[-1]
+        # above caused ERROR: PosixPath object has no attr `split`
+        # so change was made:
+        self.file_name: str = file_name
 
         # PDF processing status
         self.status: _Status = _Status()

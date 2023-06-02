@@ -4,6 +4,7 @@ import pathlib
 MODULE_PATH = pathlib.Path(__file__).parent.absolute()
 
 sys.path.append(str(MODULE_PATH))
+# sys.modules['dearAJ'] = sys.modules['dearaj']
 
 from .local import *
 import ajconsole
