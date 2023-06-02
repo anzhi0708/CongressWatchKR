@@ -23,6 +23,7 @@ from pprint import pp
 
 log = aj.ajconsole.Message(enabled=True).log
 period_pickle_filename_pattern: str = "PeriodObj_{nth}thAssemb.pickle"
+confdesc_by_year_filename_pat: str = '_test_abc_{YEAR}.pickle'
 
 
 def dump_conf_obj_to_pickle_binary_by_nth(nth: int):
@@ -194,6 +195,130 @@ class Main:
             print(type(result))
         log(f"Done reading {filename}")
         return result
+
+    def load_pickle_by_year(self, year: int):
+        filename: str = confdesc_by_year_filename_pat.replace("{YEAR}", str(year))
+        file_size = os.path.getsize(filename)
+        log(f"Reading {filename} (size: {file_size})")
+        with open(filename, "rb") as pickle_binary:
+            result = pickle.load(pickle_binary)
+            print(type(result))
+        log(f"Done reading {filename}")
+        return result
+
+    def stage_3(self, year: int = -1):
+        """
+        教授说需要‘届数别’的数据分析。之前得到的数据都是
+        以“年”为单位，因此在某些时间跨度上，某一年的数据
+        是同时包含了两届国会发言的数据的。
+        - 找出这些重叠的时间段。
+        - 将重叠的时间段（年份）按照：1月1日～当时的某届
+        的结束日期
+        - 以及：结束日期-12月31日。
+          如此一来，一个重叠了两届议会的年份就被分成了两
+          个部分。将这两个部分合并到它们归属的议会数据中
+          即可。
+        那么，
+        要如何做呢？
+        已知ConfDesc的pickle数据（已有的_test_abc*文件）
+        是以年份为单位划分的。
+        那么：
+            - 找出重叠的年份
+            - 。。。
+        Anyway 先做第一步。
+
+        这个method显然是会被包装为CLI命令的。
+        那么它需要达成什么功能？- 必然是：根据届数输出
+        词频统计信息、单独的委员会发言情况统计。
+        首先先做词频的功能。
+        """
+
+        DATA_FILES: list[str] = []
+        for file in os.listdir("./dearAJ/src"):
+            if file.startswith("_test_abc_") and \
+            file.endswith("pickle"):
+                DATA_FILES.append(f"./dearAJ/src/{file}")
+        ALL_DUP_YEARS: list[str] = []
+        for gen in (d:=aj.GEN_PERIOD_DICT):
+            year_start = d[gen][0]
+            year_end = d[gen][1]
+            if year_start not in ALL_DUP_YEARS:
+                ALL_DUP_YEARS.append(year_start)
+            if year_end not in ALL_DUP_YEARS:
+                ALL_DUP_YEARS.append(year_end)
+        log(f"{ALL_DUP_YEARS=}")
+        YEARS: list[str] = list(filter(lambda n: 2004 <= int(n[:4]) <= 2021,
+                                       ALL_DUP_YEARS))
+        YEARS.sort()
+        log(f"{YEARS=}")
+        # YEARS=['2004-05-29', '2004-05-30', '2008-05-29', '2008-05-30', '2012-05-29', '2012-05-30', '2016-05-29', '2016-05-30', '2020-05-29', '2020-05-30']
+
+        """
+        现在我需要把这些年的pickle文件单独分析。
+        这些年份里，每个年份都是包含了前一届国会的结束日期
+        和下一届国会的就任日期。
+        """
+        if year == -1:
+            for index, x in enumerate(YEARS):
+                THE_YEAR = x[:4]
+                if index % 2 == 1:
+                    period_obj = aj.period(x, f"{THE_YEAR}-12-31")
+                    output_filename = f"ConfDesc{THE_YEAR}_aft_{x}toLastDay.pickle"
+                else:
+                    period_obj = aj.period(f"{THE_YEAR}-01-01", x)
+                    output_filename = f"ConfDesc{THE_YEAR}_pre_Jan1To{x}.pickle"
+                list_of_confdesc_objs = []
+                log(f"Output file name will be:\n\t{output_filename}")
+                for conf in period_obj:
+                    confdesc_obj = conf.describe()
+                    list_of_confdesc_objs.append(confdesc_obj)
+                with open(output_filename, 'wb') as output:
+                    log("Dumping")
+                    pickle.dump(list_of_confdesc_objs, output)
+                    log("Done dumping")
+        
+        else:
+            # Check if year is valid
+            # Im gonna hard code this stuff
+            if not year in (2008, 2012, 2016, 2020):
+                raise RuntimeError("Invalid year")
+            log(f"{year=}")
+            match year:
+                case 2008:
+                    P_Pre = aj.period("2008-01-01", YEARS[2])
+                    P_Aft = aj.period(YEARS[3], "2008-12-31")
+                case 2012:
+                    P_Pre = aj.period("2012-01-01", YEARS[4])
+                    P_Aft = aj.period(YEARS[5], "2012-12-31")
+                case 2016:
+                    P_Pre = aj.period("2016-01-01", YEARS[6])
+                    P_Aft = aj.period(YEARS[7], "2016-12-31")
+                case 2020:
+                    P_Pre = aj.period("2020-01-01", YEARS[8])
+                    P_Aft = aj.period(YEARS[9], "2020-12-31")
+            output_filename_pre = f"ConfDesc{year}_pre_Jan1ToMiddle.pickle"
+
+            output_filename_aft = f"ConfDesc{year}_aft_MiddleToLastDayOfYear.pickle"
+            ls_pre = []
+            ls_aft = []
+            for conf in P_Pre:
+                ls_pre.append(conf.describe())
+            with open(output_filename_pre, 'wb') as output:
+                log(f"[pre] Writing for year {year}")
+                pickle.dump(ls_pre, output)
+            log(f"{year=} [pre] Now cleaning up")
+            ls_pre = []
+
+            for conf in P_Aft:
+                ls_aft.append(conf.describe())
+            with open(output_filename_aft, 'wb') as output:
+                log(f"[aft] Writing for year {year}")
+                pickle.dump(ls_aft, output)
+            log(f"{year=} [aft] Now cleaning up")
+            ls_aft = []
+
+
+        
 
     def dump_pickle_file_by_nth(self, nth: int) -> None:
         """
