@@ -2,6 +2,7 @@
 
 from STOPWORDS import SKIP
 from pprint import pp
+from stage_3 import sort_dict
 from functools import reduce
 from collections import defaultdict
 from dearAJ.src.ajconsole import Message
@@ -213,6 +214,67 @@ def get_word_freq_by_file(
     word_freq_male: dict[str, int] = objekt[0]
     word_freq_female: dict[str, int] = objekt[1]
     # If `top` is set, then ignore `min_male`, `min_female` and `greater_than`.
+    if top > 0:
+        i: int = 0
+        result_male: dict = dict()
+        result_female: dict = dict()
+        for key in word_freq_male:
+            result_male[key] = word_freq_male[key]
+            i += 1
+            if i == top:
+                break
+        i = 0  # reset `i` to 0
+        for key in word_freq_female:
+            result_female[key] = word_freq_female[key]
+            i += 1
+            if i == top:
+                break
+        return result_male, result_female
+
+    if (min_male > 0) or (greater_than > 0):
+        for word in word_freq_male:
+            if word_freq_male[word] <= max(min_male, greater_than):
+                word_freq_male.pop(word)
+    if (min_female > 0) or (greater_than > 0):
+        for word in word_freq_female:
+            if word_freq_female[word] <= max(min_female, greater_than):
+                word_freq_female.pop(word)
+
+    return word_freq_male, word_freq_female
+
+
+def filter_tuple_using_builtin_stopwords(t: tuple[dict, dict]) -> tuple[dict, dict]:
+    
+    _male_wordfreq: dict = t[0]
+    _female_wordfreq: dict = t[1]
+    log("filtering male freqs")
+    filtered_male: dict = {
+        k: v for k, v in _male_wordfreq.items() if len(k) > 1 and k not in SKIP
+    }
+    log("filtering female freqs")
+    filtered_female: dict = {
+        k: v for k, v in _female_wordfreq.items() if len(k) > 1 and k not in SKIP
+    }
+    log("done filtering")
+    return (sort_dict(filtered_male), sort_dict(filtered_female))
+
+
+def get_word_freq_by_tuple(
+    *,
+    obj: tuple[dict, dict],
+    top: int = 0,
+    min_male: int = 0,
+    min_female: int = 0,
+    greater_than: int = 0,
+) -> tuple:
+    objekt = obj
+    word_freq_male: dict[str, int] = objekt[0]
+    word_freq_female: dict[str, int] = objekt[1]
+    # If `top` is set, then ignore `min_male`, `min_female` and `greater_than`.
+    log("Sorting male dict")
+    word_freq_male = sort_dict(word_freq_male)
+    log("Sorting female dict")
+    word_freq_female = sort_dict(word_freq_female)
     if top > 0:
         i: int = 0
         result_male: dict = dict()
@@ -684,4 +746,12 @@ if __name__ == "__main__":
     pp(word_freq_look_up((get_word_freq, {"year": 2013, "top": 20}), key="제도"))
     """
     freqs = Main.merge_all_by_nth_freq_files()
+    log(f"{'Done initializing' if len(freqs) != 0 else type(freqs) + ' ' + 'len=' + str(len(freqs))}")
+    # pp(freqs[0])
+    # input("\n")
+    pp(get_word_freq_by_tuple(obj=freqs[0], top=20))
+    log("Filtering using built-in STOPWORDS")
+    freqs = list(map(filter_tuple_using_builtin_stopwords, freqs))
+    pp(get_word_freq_by_tuple(obj=freqs[0], top=20))
+    input()
     fire.Fire(Main)
