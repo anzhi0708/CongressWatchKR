@@ -275,6 +275,9 @@ def get_word_freq_by_tuple(
     log("Sorting female dict")
     word_freq_female = sort_dict(word_freq_female)
     if top > 0:
+        log("")
+        log(f"{top=}")
+        log("")
         i: int = 0
         result_male: dict = dict()
         result_female: dict = dict()
@@ -680,6 +683,116 @@ class Main:
         print(f"Male\nHigh:{high_male}, Low:{low_male}")
         print(f"Female\nHigh:{high_female}, Low:{low_female}")
 
+    def detail_by_nth(self, nth: int, top: int) -> None:
+        """
+        Print word frequency, corresponding labels, and corresponding percentages. The calculation of percentages depends on the provided 'top' parameter, i.e., the percentage refers to the proportion of the word in the **printed vocabularies**.
+        """
+        freqs_by_nth = self.merge_all_by_nth_freq_files()
+        if nth == 18:
+            freqs = freqs_by_nth[0]
+        elif nth == 19:
+            freqs = freqs_by_nth[1]
+        elif nth == 20:
+            freqs = freqs_by_nth[2]
+        else:
+            raise RuntimeError("invalid NTH")
+        male_freq, female_freq = self.__withlabels_by_tuple(freqs)
+        male_word_count: int = 0
+        female_word_count: int = 0
+        male_word_types: dict[str, int] = dict()
+        female_word_types: dict[str, int] = dict()
+
+        for k in male_freq:
+            male_word_count += (this_count := male_freq[k]["count"])
+            labels: list[str | None] = male_freq[k]["classification"]
+            if not labels:
+                if "unknown" not in male_word_types:
+                    male_word_types["unknown"] = this_count
+                else:
+                    male_word_types["unknown"] += this_count
+            else:
+                for label in labels:
+                    if label not in male_word_types:
+                        male_word_types[label] = this_count
+                    else:
+                        male_word_types[label] += this_count
+
+        for k in female_freq:
+            female_word_count += (this_count := female_freq[k]["count"])
+            labels: list[str | None] = female_freq[k]["classification"]
+            if not labels:
+                if "unknown" not in female_word_types:
+                    female_word_types["unknown"] = this_count
+                else:
+                    female_word_types["unknown"] += this_count
+            else:
+                for label in labels:
+                    if label not in female_word_types:
+                        female_word_types[label] = this_count
+                    else:
+                        female_word_types[label] += this_count
+
+        print("Male\n")
+        pp(male_freq)
+        print()
+        print("Female\n")
+        pp(female_freq)
+
+        for k in male_word_types:
+            male_word_types[k] = (
+                male_word_types[k],
+                male_word_types[k] / male_word_count,
+            )
+
+        for k in female_word_types:
+            female_word_types[k] = (
+                female_word_types[k],
+                female_word_types[k] / female_word_count,
+            )
+
+        male_word_types = dict(
+            sorted(male_word_types.items(), key=lambda item: item[1][1], reverse=True)
+        )
+
+        female_word_types = dict(
+            sorted(female_word_types.items(), key=lambda item: item[1][1], reverse=True)
+        )
+        print()
+        print("Male\n")
+        print(male_word_types)
+        print()
+        print("Female\n")
+        print(female_word_types)
+        print()
+
+        high_male = 0
+        low_male = 0
+        high_female = 0
+        low_female = 0
+
+        for T in male_word_types:
+            t = male_word_types[T]
+            percentage = t[1]
+            if T in self.__HIGH_POLITICS:
+                high_male += percentage
+            elif T in self.__LOW_POLITICS:
+                low_male += percentage
+            else:
+                pass
+
+        for T in female_word_types:
+            t = female_word_types[T]
+            percentage = t[1]
+            if T in self.__HIGH_POLITICS:
+                high_female += percentage
+            elif T in self.__LOW_POLITICS:
+                low_female += percentage
+            else:
+                pass
+
+        print(f"Male\nHigh:{high_male}, Low:{low_male}")
+        print(f"Female\nHigh:{high_female}, Low:{low_female}")
+
     def get_confdesc_by_nth(self, nth: int):
         """
         Internal Use Only
@@ -728,6 +841,77 @@ class Main:
             }
         return (freq_male, freq_female)
 
+    def __withlabels_by_tuple(self, tup: tuple) -> tuple[dict]:
+        """
+        This command will display the word frequency along with the corresponding categories for each word.
+        """
+        word_freq = tup
+        freq_male = word_freq[0]
+        freq_female = word_freq[1]
+
+        for key in freq_male:
+            _word = Word(key)
+            freq_male[key] = {
+                "count": freq_male[key],
+                "classification": [
+                    k for k in _word.__dict__ if _word.__dict__[k] is True
+                ],
+            }
+        for key in freq_female:
+            _word = Word(key)
+            freq_female[key] = {
+                "count": freq_female[key],
+                "classification": [
+                    k for k in _word.__dict__ if _word.__dict__[k] is True
+                ],
+            }
+        return (freq_male, freq_female)
+
+    def get_by_nth(self, nth: int, top: int = 20):
+        freqs = Main.merge_all_by_nth_freq_files()
+        log(
+            f"{'Done initializing' if len(freqs) != 0 else type(freqs) + ' ' + 'len=' + str(len(freqs))}"
+        )
+        # pp(freqs[0])
+        # input("\n")
+        # pp(get_word_freq_by_tuple(obj=freqs[0], top=20))
+        log("Filtering using built-in STOPWORDS")
+        freqs = list(map(filter_tuple_using_builtin_stopwords, freqs))
+        if nth == 18:
+            result = freqs[0]
+        elif nth == 19:
+            result = freqs[1]
+        elif nth == 20:
+            result = freqs[2]
+        else:
+            raise RuntimeError("only 18, 19 and 20 are valid")
+        return get_word_freq_by_tuple(result, top=top)
+        """
+        pp(get_word_freq_by_tuple(obj=freqs[0], top=20))
+        if True:  # hey this is just a switch so be quiet
+            for index, t in enumerate(freqs):
+                NTH = index + 18
+                filename = f"{NTH}th_TupleOfTwoDicts_akaWordFreqComplete.pickle"
+                if filename not in os.listdir():
+                    log(f"{filename} not found, now creating.")
+                    with open(filename, "wb") as o:
+                        log(f"Writing to {filename}")
+                        pickle.dump(t, o)
+                        log(f"Done writing to {filename}")
+        _18TH = get_word_freq_by_tuple(obj=freqs[0], top=20)
+        _19TH = get_word_freq_by_tuple(obj=freqs[1], top=20)
+        _20TH = get_word_freq_by_tuple(obj=freqs[2], top=20)
+        for index, t in enumerate((_18TH, _19TH, _20TH)):
+                NTH = index + 18
+                filename = f"top20_{NTH}th_TupleOfTwoDicts_akaWordFreq.pickle"
+                if filename not in os.listdir():
+                    log(f"{filename} not found, now creating.")
+                    with open(filename, "wb") as o:
+                        log(f"Writing to {filename}")
+                        pickle.dump(t, o)
+                        log(f"Done writing to {filename}")
+        """
+
 
 if __name__ == "__main__":
     # print(f"{len(DATA_FILES)} data files (by YEAR) found")
@@ -744,37 +928,4 @@ if __name__ == "__main__":
     # word_freq_look_up((get_word_freq, {"year": 2013, "top": 20}, key=""제도)
     pp(word_freq_look_up((get_word_freq, {"year": 2013, "top": 20}), key="제도"))
     """
-    freqs = Main.merge_all_by_nth_freq_files()
-    log(
-        f"{'Done initializing' if len(freqs) != 0 else type(freqs) + ' ' + 'len=' + str(len(freqs))}"
-    )
-    # pp(freqs[0])
-    # input("\n")
-    pp(get_word_freq_by_tuple(obj=freqs[0], top=20))
-    log("Filtering using built-in STOPWORDS")
-    freqs = list(map(filter_tuple_using_builtin_stopwords, freqs))
-    pp(get_word_freq_by_tuple(obj=freqs[0], top=20))
-    if True:  # hey this is just a switch so be quiet
-        for index, t in enumerate(freqs):
-            NTH = index + 18
-            filename = f"{NTH}th_TupleOfTwoDicts_akaWordFreqComplete.pickle"
-            if filename not in os.listdir():
-                log(f"{filename} not found, now creating.")
-                with open(filename, "wb") as o:
-                    log(f"Writing to {filename}")
-                    pickle.dump(t, o)
-                    log(f"Done writing to {filename}")
-    _18TH = get_word_freq_by_tuple(obj=freqs[0], top=20)
-    _19TH = get_word_freq_by_tuple(obj=freqs[1], top=20)
-    _20TH = get_word_freq_by_tuple(obj=freqs[2], top=20)
-    for index, t in enumerate((_18TH, _19TH, _20TH)):
-            NTH = index + 18
-            filename = f"top20_{NTH}th_TupleOfTwoDicts_akaWordFreq.pickle"
-            if filename not in os.listdir():
-                log(f"{filename} not found, now creating.")
-                with open(filename, "wb") as o:
-                    log(f"Writing to {filename}")
-                    pickle.dump(t, o)
-                    log(f"Done writing to {filename}")
-
     fire.Fire(Main)
