@@ -2,6 +2,9 @@
 
 from STOPWORDS import SKIP
 from pprint import pp
+from functools import reduce
+from collections import defaultdict
+from dearAJ.src.ajconsole import Message
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
@@ -18,7 +21,32 @@ from classification import Word
 import fire
 
 
+log = Message(enabled=True).log
 PICKLE_BIN_CONF_DESC_BY_NTH: str = "./NthAsmDescription_{NTH}.pickle"
+FREQ_NTH: dict[int, list] = {
+    18: [
+        "./_overlap/_second_half_of_2008.pickle",
+        "./dearAJ/src/_test_abc_2009.pickle",
+        "./dearAJ/src/_test_abc_2010.pickle",
+        "./dearAJ/src/_test_abc_2011.pickle",
+        "./_overlap/_first_half_of_2012.pickle",
+    ],
+    19: [
+        "./_overlap/_second_half_of_2012.pickle",
+        "./dearAJ/src/_test_abc_2013.pickle",
+        "./dearAJ/src/_test_abc_2014.pickle",
+        "./dearAJ/src/_test_abc_2015.pickle",
+        "./_overlap/_first_half_of_2016.pickle",
+    ],
+    20: [
+        "./_overlap/_second_half_of_2016.pickle",
+        "./dearAJ/src/_test_abc_2017.pickle",
+        "./dearAJ/src/_test_abc_2018.pickle",
+        "./dearAJ/src/_test_abc_2019.pickle",
+        "./_overlap/_first_half_of_2020.pickle",
+    ],
+}
+
 Index = NewType("Index", int)
 
 
@@ -43,11 +71,11 @@ female MP speeches.
 
 _DATA_PATH: str = "./dearAJ/src"
 
-_WORD_FREQ_FILE_PREFIX: str = "_test_abc_"
+_WORD_FREQ_FILE_PREFIX: str = "_test_abc_"  # WordFreq by YEAR
 
-DATA_FILES: list[str] = []
+DATA_FILES: list[str] = []  # ConfDesc files
 
-TUI_LAUNCHER: str = "./app.py"
+TUI_LAUNCHER: str = "./app.py"  # TUI interface
 
 USER_PYTHON_INTERPRETER: str = "python3"
 
@@ -56,6 +84,18 @@ USER_PYTHON_INTERPRETER: str = "python3"
 for file in os.listdir(_DATA_PATH):
     if file.startswith("Description"):
         DATA_FILES.append(file)
+
+
+def get_freq_by_file(filename: str):
+    with open(filename, "rb") as p:
+        data = pickle.load(p)
+        print(f"{filename}: {len(data)=}, {type(data)=}, {type(data[0])=}")
+    return data
+
+
+# for nth in FREQ_NTH:
+#     for each_file in FREQ_NTH[nth]:
+#         tup = get_freq_by_file(each_file)
 
 
 def get_desc(filename: str) -> list[ConfDescription]:
@@ -76,8 +116,9 @@ def print_confdesc_of_year(year: int) -> None:
     print(desc)
 
 
-def get_word_freq_of_year(year: int) -> tuple[dict[str, int]]:
-    with open(f"{_DATA_PATH}/{_WORD_FREQ_FILE_PREFIX}{year}.pickle", "rb") as file:
+def get_word_freq_by_filename(filename: str) -> tuple:
+    log(f"Reading {filename}, size={os.path.getsize(filename)}")
+    with open(filename, "rb") as file:
         data = file.read()
         objekt = pickle.loads(data)
         _male_wordfreq: dict = objekt[0]
@@ -103,6 +144,11 @@ def get_word_freq_of_year(year: int) -> tuple[dict[str, int]]:
             )
         }
         return (sorted_male, sorted_female)
+
+
+def get_word_freq_of_year(year: int) -> tuple[dict[str, int]]:
+    filename = f"{_DATA_PATH}/{_WORD_FREQ_FILE_PREFIX}{year}.pickle"
+    return get_word_freq_by_filename(filename)
 
 
 def word_freq_look_up(
@@ -153,6 +199,47 @@ def word_freq_look_up(
         return BothMaleAndFemale().execute(key, target), {
             "count_shown[BOTH]": count_shown
         }
+
+
+def get_word_freq_by_file(
+    *,
+    file: str,
+    top: int = 0,
+    min_male: int = 0,
+    min_female: int = 0,
+    greater_than: int = 0,
+) -> tuple:
+    objekt = get_word_freq_by_filename(file)
+    word_freq_male: dict[str, int] = objekt[0]
+    word_freq_female: dict[str, int] = objekt[1]
+    # If `top` is set, then ignore `min_male`, `min_female` and `greater_than`.
+    if top > 0:
+        i: int = 0
+        result_male: dict = dict()
+        result_female: dict = dict()
+        for key in word_freq_male:
+            result_male[key] = word_freq_male[key]
+            i += 1
+            if i == top:
+                break
+        i = 0  # reset `i` to 0
+        for key in word_freq_female:
+            result_female[key] = word_freq_female[key]
+            i += 1
+            if i == top:
+                break
+        return result_male, result_female
+
+    if (min_male > 0) or (greater_than > 0):
+        for word in word_freq_male:
+            if word_freq_male[word] <= max(min_male, greater_than):
+                word_freq_male.pop(word)
+    if (min_female > 0) or (greater_than > 0):
+        for word in word_freq_female:
+            if word_freq_female[word] <= max(min_female, greater_than):
+                word_freq_female.pop(word)
+
+    return word_freq_male, word_freq_female
 
 
 def get_word_freq(
@@ -284,7 +371,7 @@ def tui_show_pdf(filename: str) -> None:
 
 class Main:
     """CLI Utility of CongressWatch.
-    
+
     Run `python3 main.py` to see help information.
 
     Copyright 2023 Anji Wong.
@@ -314,6 +401,58 @@ class Main:
         """
         return self.__LABELS
 
+    @staticmethod
+    def get_word_freq_by_file(
+        *,
+        file: str,
+        top: int = 0,
+        min_male: int = 0,
+        min_female: int = 0,
+        greater_than: int = 0,
+    ) -> tuple:
+        return get_freq_by_file(file)
+
+    @staticmethod
+    def merge_word_freq(
+        source: tuple[dict, dict], target: tuple[dict, dict]
+    ) -> tuple[dict, dict]:
+        log("Merging 2 tuples")
+        source_male = source[0]
+        source_female = source[1]
+        target_male = target[0]
+        target_female = target[1]
+        result_male = defaultdict(int)
+        result_female = defaultdict(int)
+        log("Merging freq (male, 1/2)")
+        for key in source_male:
+            result_male[key] += source_male[key]
+        log("Merging freq (male, 2/2)")
+        for key in target_male:
+            result_male[key] += target_male[key]
+        log("Merging freq (female, 1/2)")
+        for key in source_female:
+            result_female[key] += source_female[key]
+        log("Merging freq (female, 2/2)")
+        for key in target_female:
+            result_female[key] += target_female[key]
+        log("Done merging freqs")
+        return (result_male, result_female)
+
+    @staticmethod
+    def merge_all_by_nth_freq_files() -> list[tuple]:
+        freqs = []
+        for nth in FREQ_NTH:
+            parts = []
+            for file in FREQ_NTH[nth]:
+                log(f"Getting wordfreq from file {file}, size={os.path.getsize(file)}")
+                part = Main.get_word_freq_by_file(file=file)  # returned None?
+                parts.append(part)
+            log(f"{len(parts)=}")
+            for e in parts:
+                log(f"{type(e)=}")
+            parts_result = reduce(Main.merge_word_freq, parts)
+            freqs.append(parts_result)
+        return freqs
 
     def plotfreq(
         self,
@@ -349,9 +488,10 @@ class Main:
         Saves word freq data to .csv file.
         """
         import csv
+
         print("\rReading wordfreq data...", end="", flush=True)
         male_freq, female_freq = get_word_freq(year=year, top=top)
-        with open(f"./wordfreq_output_{year}_top{top}.csv", 'w') as output:
+        with open(f"./wordfreq_output_{year}_top{top}.csv", "w") as output:
             writer = csv.writer(output)
             writer.writerow(["Index", "Male", "Female"])
             row_male: list[str] = []
@@ -368,9 +508,8 @@ class Main:
                 row_female.append(f"{word} {freq}")
             print("Saving data...")
             for i in range(top):
-                writer.writerow([i+1, row_male[i], row_female[i]])
+                writer.writerow([i + 1, row_male[i], row_female[i]])
         print("Done.")
-
 
     def lookup(self, year: int, top: int, key: str):
         """
@@ -484,13 +623,12 @@ class Main:
         """
         Internal Use Only
         """
-        from dearAJ.src.ajconsole import Message
-        log = Message(enabled=False).log
+
         if nth not in (17, 18, 19, 20):
             raise AttributeError("Invalid arg: NTH")
         filename: str = PICKLE_BIN_CONF_DESC_BY_NTH.replace("{NTH}", nth.__str__())
         log(f"Reading '{filename}'")
-        with open(filename, 'rb') as pickle_bin:
+        with open(filename, "rb") as pickle_bin:
             confdesc_objs = pickle.load(pickle_bin)
         log("", prefix="")
         log(f"{type(confdesc_objs) = }")
@@ -500,7 +638,6 @@ class Main:
         log(f"{confdesc_objs[0] = }")
         log("", prefix="")
         log(f"{dir(confdesc_objs[0]) = }")
-
 
     def __withlabels(self, year: int, top: int) -> tuple[dict]:
         """
@@ -532,12 +669,12 @@ class Main:
 
 
 if __name__ == "__main__":
-    print(f"{len(DATA_FILES)} data files (by YEAR) found")
-    DATAFILE_BY_NTH_COUNT: int = 0
-    for file in os.listdir():
-        if file.startswith("NthAsmDescription") and file.endswith("pickle"):
-            DATAFILE_BY_NTH_COUNT += 1
-    print(f"{DATAFILE_BY_NTH_COUNT} data files (by NTH) found")
+    # print(f"{len(DATA_FILES)} data files (by YEAR) found")
+    # DATAFILE_BY_NTH_COUNT: int = 0
+    # for file in os.listdir():
+    #     if file.startswith("NthAsmDescription") and file.endswith("pickle"):
+    #         DATAFILE_BY_NTH_COUNT += 1
+    # print(f"{DATAFILE_BY_NTH_COUNT} data files (by NTH) found")
     """
     plot_word_freq(year=2006, top=20)
     # Instead of using something like this to get a word's position:
@@ -546,4 +683,5 @@ if __name__ == "__main__":
     # word_freq_look_up((get_word_freq, {"year": 2013, "top": 20}, key=""제도)
     pp(word_freq_look_up((get_word_freq, {"year": 2013, "top": 20}), key="제도"))
     """
+    freqs = Main.merge_all_by_nth_freq_files()
     fire.Fire(Main)
