@@ -244,7 +244,6 @@ def get_word_freq_by_file(
 
 
 def filter_tuple_using_builtin_stopwords(t: tuple[dict, dict]) -> tuple[dict, dict]:
-    
     _male_wordfreq: dict = t[0]
     _female_wordfreq: dict = t[1]
     log("filtering male freqs")
@@ -746,12 +745,23 @@ if __name__ == "__main__":
     pp(word_freq_look_up((get_word_freq, {"year": 2013, "top": 20}), key="제도"))
     """
     freqs = Main.merge_all_by_nth_freq_files()
-    log(f"{'Done initializing' if len(freqs) != 0 else type(freqs) + ' ' + 'len=' + str(len(freqs))}")
+    log(
+        f"{'Done initializing' if len(freqs) != 0 else type(freqs) + ' ' + 'len=' + str(len(freqs))}"
+    )
     # pp(freqs[0])
     # input("\n")
     pp(get_word_freq_by_tuple(obj=freqs[0], top=20))
     log("Filtering using built-in STOPWORDS")
     freqs = list(map(filter_tuple_using_builtin_stopwords, freqs))
     pp(get_word_freq_by_tuple(obj=freqs[0], top=20))
-    input()
+    if True:  # hey this is just a switch so be quiet
+        for index, t in enumerate(freqs):
+            NTH = index + 18
+            filename = f"{NTH}th_TupleOfTwoDicts_akaWordFreqComplete.pickle"
+            if filename not in os.listdir():
+                log(f"{filename} not found, now creating.")
+                with open(filename, "wb") as o:
+                    log(f"Writing to {filename}")
+                    pickle.dump(t, o)
+                    log(f"Done writing to {filename}")
     fire.Fire(Main)
