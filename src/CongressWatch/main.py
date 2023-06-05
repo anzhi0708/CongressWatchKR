@@ -764,4 +764,17 @@ if __name__ == "__main__":
                     log(f"Writing to {filename}")
                     pickle.dump(t, o)
                     log(f"Done writing to {filename}")
+    _18TH = get_word_freq_by_tuple(obj=freqs[0], top=20)
+    _19TH = get_word_freq_by_tuple(obj=freqs[1], top=20)
+    _20TH = get_word_freq_by_tuple(obj=freqs[2], top=20)
+    for index, t in enumerate((_18TH, _19TH, _20TH)):
+            NTH = index + 18
+            filename = f"top20_{NTH}th_TupleOfTwoDicts_akaWordFreq.pickle"
+            if filename not in os.listdir():
+                log(f"{filename} not found, now creating.")
+                with open(filename, "wb") as o:
+                    log(f"Writing to {filename}")
+                    pickle.dump(t, o)
+                    log(f"Done writing to {filename}")
+
     fire.Fire(Main)
