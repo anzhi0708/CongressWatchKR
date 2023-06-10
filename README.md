@@ -7,10 +7,10 @@ A data analysis tool primarily used for parsing Korean Congressional meeting rec
 
 ---
 
+![Screenshot](./screenshot.jpg)
+
 - [Usage](https://github.com/anzhi0708/CongressWatchKR#usage)
 - [Notice](https://github.com/anzhi0708/CongressWatchKR#note)
-
-![Screenshot](./screenshot.jpg)
 
 This library was designed to complete my graduation thesis🎓, including modules for web scraping, text analysis, and more. Since it was designed for personal use, it has not been published on PyPi.
 
