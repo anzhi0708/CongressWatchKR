@@ -6,6 +6,7 @@ from stage_3 import Main
 from dataclasses import dataclass
 from collections import defaultdict
 from typing import Self
+from os import get_terminal_size
 from tqdm import tqdm
 
 
@@ -72,7 +73,10 @@ def get_stats(nth: int) -> dict:
 
 class _Main:
     def get(self, nth: int) -> None:
-        pp(get_stats(nth))
+        WIDTH, HEIGHT = get_terminal_size()
+        print(f"{nth=}".center(WIDTH, "="))
+        pp((result := get_stats(nth)))
+        print(f"Total: {len(result)}")
 
 
 if __name__ == "__main__":
