@@ -8,6 +8,8 @@ A data analysis tool primarily used for parsing Korean Congressional meeting rec
 
 ![Screenshot](./screenshot.jpg)
 
+---
+
 - [Usage](https://github.com/anzhi0708/CongressWatchKR#usage)
 - [Notice](https://github.com/anzhi0708/CongressWatchKR#note)
 
