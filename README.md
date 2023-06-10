@@ -2,7 +2,7 @@
 
 <p align='center'>
 
-[**한국어**](./KR_README.md) | [**中文**](./ZH_README.md)
+    <a href='./KR_README.md'>한국어</a> | <a href='./ZH_README.md'>中文</a>
 
 </p>
 
