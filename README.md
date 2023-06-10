@@ -63,10 +63,6 @@ python3 app.py PDF_FILE
 python3 app.py pdf_for_testing/sample_2020.pdf
 ```
 
-- CLI Mode (Not recommended)
-```bash
-./ajpdf.py PDF_FILE
-```
 
 - With Python
 ```python
