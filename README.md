@@ -73,7 +73,7 @@ cd src/
 # instead of
 # `dearaj/src`.
 pwd
-/Downloads/CongressWatchKR/src
+/Home/Downloads/CongressWatchKR/src
 
 ```
 
