@@ -1,10 +1,6 @@
 # CongressWatch🇰🇷
 
-<p align='center'>
-
-    <a href='./KR_README.md'>한국어</a> | <a href='./ZH_README.md'>中文</a>
-
-</p>
+[**한국어**](./KR_README.md) | [**中文**](./ZH_README.md)
 
 A data analysis tool primarily used for parsing Korean Congressional meeting record files (PDF files), **which might assist in your 🏫political science papers✏️⌨️**, provided that you are not intimidated by the use of terminal command lines💻 and Python🐍.
 
