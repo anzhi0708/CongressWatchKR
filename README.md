@@ -68,6 +68,13 @@ python3 app.py pdf_for_testing/sample_2020.pdf
 
 ```bash
 cd src/
+# make sure you're in this directory:
+# `/CongressWatchKR/src`
+# instead of
+# `dearaj/src`.
+pwd
+/Downloads/CongressWatchKR/src
+
 ```
 
 then
