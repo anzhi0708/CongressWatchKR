@@ -68,7 +68,6 @@ python3 app.py pdf_for_testing/sample_2020.pdf
 
 ```bash
 cd src/
-ls CongressWatch/
 ```
 
 then
