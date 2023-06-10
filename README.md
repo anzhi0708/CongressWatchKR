@@ -47,9 +47,14 @@ python3 main.py detail YEAR TOP_N
 python3 main.py plotfreq YEAR
 
 # ... and so on. Run `main.py` without any arguments to see all.
+
+# Also, there're some useful little scripts under this directory:
+python3 _get_percentage_by_comm.py get 20
 ```
 
 - TUI Mode
+
+This is a TUI interface based on the textual library, supporting both mouse and keyboard operations. As textual is still in the early stages of development, if the UI interface fails to function due to changes in its API, please try downgrading textual, install earlier versions of textual (prior to 0.10), or cease using the UI interface and use the command line interface instead.
 
 ```bash
 python3 app.py PDF_FILE
@@ -107,10 +112,20 @@ Downloading PDF files
 475136
 714752
 
-# The mysterious codes `ct1`, `ct2`, etc., are part of the Congressional website's API, and they are used to locate a specific PDF file. The website's API design includes abbreviations in Korean romanized letters and English, neither of which are my native language. As a result, I gave up trying to decipher these abbreviations and obediently use what they provide. If you want to use this download function, I suggest you simply copy this code — of course, changing the date range to the one you need.
+# The mysterious codes:
+# `ct1`, `ct2`, etc., are part of the Congressional website's API, 
+# and they are used to locate a specific PDF file.
+# The website's API design includes abbreviations 
+# in Korean romanized letters and English, 
+# neither of which are my native language. 
+#
+# As a result, I gave up trying to decipher these abbreviations and obediently use what they provide. 
+# If you want to use this download function, 
+# I suggest you simply copy this code — of course, changing the date range to the one you need.
 ```
 ```bash
-# After the download is complete, you will see PDF file names like these in your directory:
+# After the download is complete, 
+# you will see PDF file names like these in your directory:
 
 2019-01-01_20.365.02.324.pdf  2019-01-18_20.365.02.333.pdf
 2019-01-09_20.365.01.333.pdf  2019-01-21_20.366.01.345.pdf
