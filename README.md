@@ -54,7 +54,7 @@ python3 _get_percentage_by_comm.py get 20
 
 - TUI Mode
 
-This is a TUI interface based on the textual library, supporting both mouse and keyboard operations. As textual is still in the early stages of development, if the UI interface fails to function due to changes in its API, please try downgrading textual, install earlier versions of textual (prior to 0.10), or cease using the UI interface and use the command line interface instead.
+This is a TUI interface based on the `textual` library, supporting both mouse and keyboard operations. As `textual` is(was?) still in the early stages of development, if the UI interface fails to function due to changes in its API, please try downgrading `textual`, install earlier versions of `textual` (prior to 0.10), or cease using the UI interface and use the command line interface instead.
 
 ```bash
 python3 app.py PDF_FILE
