@@ -2,6 +2,7 @@
 
 from STOPWORDS import SKIP
 from pprint import pp
+from tqdm import tqdm
 from stage_3 import sort_dict
 from functools import reduce
 from collections import defaultdict
@@ -487,17 +488,13 @@ class Main:
         target_female = target[1]
         result_male = defaultdict(int)
         result_female = defaultdict(int)
-        log("Merging freq (male, 1/2)")
-        for key in source_male:
+        for key in tqdm(source_male, desc="male(source)", leave=True, ascii=True):
             result_male[key] += source_male[key]
-        log("Merging freq (male, 2/2)")
-        for key in target_male:
+        for key in tqdm(target_male, desc="male(target)", leave=True, ascii=True):
             result_male[key] += target_male[key]
-        log("Merging freq (female, 1/2)")
-        for key in source_female:
+        for key in tqdm(source_female, desc="female(source)", leave=True, ascii=True):
             result_female[key] += source_female[key]
-        log("Merging freq (female, 2/2)")
-        for key in target_female:
+        for key in tqdm(target_female, desc="female(target)", leave=True, ascii=True):
             result_female[key] += target_female[key]
         log("Done merging freqs")
         return (result_male, result_female)
@@ -511,9 +508,9 @@ class Main:
                 log(f"Getting wordfreq from file {file}, size={os.path.getsize(file)}")
                 part = Main.get_word_freq_by_file(file=file)  # returned None?
                 parts.append(part)
-            log(f"{len(parts)=}")
-            for e in parts:
-                log(f"{type(e)=}")
+            # log(f"{len(parts)=}")
+            # for e in parts:
+            #     log(f"{type(e)=}")
             parts_result = reduce(Main.merge_word_freq, parts)
             freqs.append(parts_result)
         return freqs
@@ -702,7 +699,7 @@ class Main:
         male_word_types: dict[str, int] = dict()
         female_word_types: dict[str, int] = dict()
 
-        for k in male_freq:
+        for k in tqdm(male_freq, desc="[male] loading...", leave=True, ascii=True):
             male_word_count += (this_count := male_freq[k]["count"])
             labels: list[str | None] = male_freq[k]["classification"]
             if not labels:
@@ -717,7 +714,7 @@ class Main:
                     else:
                         male_word_types[label] += this_count
 
-        for k in female_freq:
+        for k in tqdm(female_freq, desc="[female] loading...", leave=True, ascii=True):
             female_word_count += (this_count := female_freq[k]["count"])
             labels: list[str | None] = female_freq[k]["classification"]
             if not labels:
@@ -732,19 +729,25 @@ class Main:
                     else:
                         female_word_types[label] += this_count
 
+        """
         print("Male\n")
         pp(male_freq)
         print()
         print("Female\n")
         pp(female_freq)
+        """
 
-        for k in male_word_types:
+        for k in tqdm(
+            male_word_types, desc="[male] word types...", leave=True, ascii=True
+        ):
             male_word_types[k] = (
                 male_word_types[k],
                 male_word_types[k] / male_word_count,
             )
 
-        for k in female_word_types:
+        for k in tqdm(
+            female_word_types, desc="[female] word types...", leave=True, ascii=True
+        ):
             female_word_types[k] = (
                 female_word_types[k],
                 female_word_types[k] / female_word_count,
@@ -770,7 +773,7 @@ class Main:
         high_female = 0
         low_female = 0
 
-        for T in male_word_types:
+        for T in tqdm(male_word_types, desc="[male] classifying", ascii=True):
             t = male_word_types[T]
             percentage = t[1]
             if T in self.__HIGH_POLITICS:
@@ -780,7 +783,7 @@ class Main:
             else:
                 pass
 
-        for T in female_word_types:
+        for T in tqdm(female_word_types, desc="[female] classifying", ascii=True):
             t = female_word_types[T]
             percentage = t[1]
             if T in self.__HIGH_POLITICS:
@@ -790,8 +793,18 @@ class Main:
             else:
                 pass
 
-        print(f"Male\nHigh:{high_male}, Low:{low_male}")
-        print(f"Female\nHigh:{high_female}, Low:{low_female}")
+        male_high_vs_low: float = high_male / low_male
+        female_high_vs_low: float = high_female / low_female
+        print()
+        print()
+        print("Report".center(os.get_terminal_size()[0], "="))
+        print(f"Male\n\tHigh:{high_male}, Low:{low_male}")
+        print(f"\tHigh VS. Low: {male_high_vs_low}")
+        print(f"Female\n\tHigh:{high_female}, Low:{low_female}")
+        print(f"\tHigh VS. Low: {female_high_vs_low}")
+        print()
+        print(f"{male_high_vs_low / female_high_vs_low = }")
+        print()
 
     def get_confdesc_by_nth(self, nth: int):
         """
