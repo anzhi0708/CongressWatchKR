@@ -18,9 +18,9 @@ class Word:
             case "건강":
                 self.social_welfare = True
                 self.healthcare = True
-            case "경제" | "기업" | "투자" | "시장" | "수입" | "수출" | "고용" | "업체":
+            case "회사" | "경제" | "기업" | "투자" | "시장" | "수입" | "수출" | "고용" | "업체" | "일자리" | "은행":
                 self.economic = True
-            case "교육" | "학교":
+            case "교육" | "학교" | "학생":
                 self.educational = True
                 self.child_related = True
             case "군대" | "군사" | "무기":
@@ -34,17 +34,17 @@ class Word:
                 self.social_welfare = True
             case "여성":
                 self.women_related = True
-            case "아동":
+            case "아동" | "학생":
                 self.child_related = True
-            case "보건" | "코로나" | "코로나19" | "질병" | "병원" | "메르스":
+            case "보건" | "코로나" | "코로나19" | "질병" | "병원" | "메르스" | "방역":
                 self.healthcare = True
             case "가족" | "주민" | "공공":
                 self.social_welfare = True
-            case "법안" | "법률" | "법적":
+            case "법안" | "법률" | "법적" | "법률안" | "불법":
                 self.legal = True
             case "보도" | "언론":
                 self.media = True
-            case "행정" | "부처" | "예산" | "지역" | "지방" | "국정" | "출신" | "공무원" | "여야":
+            case "행정" | "부처" | "예산" | "지역" | "지방" | "국정" | "출신" | "공무원" | "여야" | "야당" | "여당" | "의석" | "개발" | "발의" | "집행" | "지자체" | "심의" | "후보" | "국내":
                 self.domestic = True
             case "개정":
                 self.domestic = True
