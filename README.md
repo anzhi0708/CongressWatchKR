@@ -1,6 +1,6 @@
 # CongressWatch🇰🇷
 
-![Static Badge](https://img.shields.io/badge/total_lines-~8k-blue) ![Static Badge](https://img.shields.io/badge/powered_by-my_graduation_thesis-white)
+![Static Badge](https://img.shields.io/badge/total_lines-~8k-blue) ![Static Badge](https://img.shields.io/badge/powered_by-my_graduation_thesis-white) ![GitHub Repo stars](https://img.shields.io/github/stars/anzhi0708/CongressWatchKR?color=red)
 
 
 
