@@ -1,6 +1,6 @@
 # CongressWatch🇰🇷
 
-![Lines of code](https://img.shields.io/tokei/lines/github/anzhi0708/CongressWatchKR)
+![Static Badge](https://img.shields.io/badge/total_lines-~8k-blue)
 
 
 [**한국어**](./KR_README.md) | [**中文**](./ZH_README.md)
