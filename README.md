@@ -1,6 +1,7 @@
 # CongressWatch🇰🇷
 
-![Static Badge](https://img.shields.io/badge/total_lines-~8k-blue)
+![Static Badge](https://img.shields.io/badge/total_lines-~8k-blue) ![Static Badge](https://img.shields.io/badge/powered_by-my_graduation_thesis-white)
+
 
 
 [**한국어**](./KR_README.md) | [**中文**](./ZH_README.md)
